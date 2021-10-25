@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "ATEcV9ynheYkQE9vun3zhfNvR1ObEERu/TxPVJxnJ8ZsRUShCuxaxwPpmRebGQXE9CinUdGuhaRTTBq0rQjhtQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal\\RestService.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\m.valiev\\.nuget\\packages\\microsoft.aspnetcore.jsonpatch\\3.1.19\\microsoft.aspnetcore.jsonpatch.3.1.19.nupkg.sha512",
+    "C:\\Users\\m.valiev\\.nuget\\packages\\microsoft.aspnetcore.mvc.newtonsoftjson\\3.1.19\\microsoft.aspnetcore.mvc.newtonsoftjson.3.1.19.nupkg.sha512",
+    "C:\\Users\\m.valiev\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\m.valiev\\.nuget\\packages\\newtonsoft.json\\12.0.2\\newtonsoft.json.12.0.2.nupkg.sha512",
+    "C:\\Users\\m.valiev\\.nuget\\packages\\newtonsoft.json.bson\\1.0.2\\newtonsoft.json.bson.1.0.2.nupkg.sha512",
+    "C:\\Users\\m.valiev\\.nuget\\packages\\npgsql\\5.0.10\\npgsql.5.0.10.nupkg.sha512",
+    "C:\\Users\\m.valiev\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.6.0\\system.runtime.compilerservices.unsafe.4.6.0.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,12 @@
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\RestService.exe
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\appsettings.Development.json
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\appsettings.json
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\RestService.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\RestService.deps.json
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\RestService.runtimeconfig.json
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\RestService.pdb
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\Newtonsoft.Json.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\Newtonsoft.Json.Bson.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\PubTmp\Out\Npgsql.dll

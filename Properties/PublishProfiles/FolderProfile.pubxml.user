@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>C:\Users\m.valiev\OneDrive - JSC HC METALLOINVEST\Рабочий стол\p</_PublishTargetUrl>
+    <History>True|2021-10-21T05:33:48.9323055Z;True|2021-10-21T06:59:34.8202245+05:00;True|2021-10-21T06:13:52.5090381+05:00;True|2021-10-14T13:09:37.5853932+05:00;True|2021-10-01T12:04:41.4015882+05:00;True|2021-10-01T12:02:17.6746125+05:00;</History>
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="RestServerAppCon">
+      <Value>Host=10.55.60.160%3bUsername=m.valiev%3bPassword=pa55w0rd!%3bDatabase=Portal.Bot</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>
