@@ -60,8 +60,9 @@ namespace RestService.BackgroundWorks
                         string taskbodyString = table.Rows[i]["taskbody"].ToString();
                         string[] taskbodyItems = taskbodyString.Split(',');
                         string flag = Convert.ToString(taskbodyItems[2]);
-                        var options=new JsonSerializerOptions { WriteIndented = true };;
-                            
+                        var options=new JsonSerializerOptions { WriteIndented = true };
+                        string phoneNumber = taskbodyItems[3];
+
                         string jsonString = "";
                         switch (flag)
                         {
@@ -81,7 +82,7 @@ namespace RestService.BackgroundWorks
                                             task_type = "get_available_salary_periods",
                                             payload = new Payloads
                                             {
-                                                phone = taskbodyItems[3]
+                                                phone = phoneNumber
                                             }
                                         }
                                     }
@@ -136,7 +137,7 @@ namespace RestService.BackgroundWorks
                                             task_type = "get_document_types",
                                             payload = new Payloads
                                             {
-                                                phone = taskbodyItems[3]
+                                                phone = phoneNumber
                                             }
                                         }
                                     }
@@ -225,7 +226,7 @@ namespace RestService.BackgroundWorks
                                                 task_type = "get_available_salary_periods",
                                                 payload = new SalarySheetUrlPayloads
                                                 {
-                                                    phone = taskbodyItems[3],
+                                                    phone = phoneNumber,
                                                     period = taskbodyItems[4]
                                                 }
                                             }
@@ -264,7 +265,121 @@ namespace RestService.BackgroundWorks
                                     {
                                         logger.LogInformation($"Error: {e.Message }");
                                     }
+                                    break; 
+                            case "get_active_requests":
+                                var SapGetActivityRequest = new SapGetSalarysheetUrl()
+                                    {
+                                        configuration = "<config_name>",
+                                        queue = "<queue_name>",
+
+                                        tasks = new List<SalarySheetUrlGetTasks>
+                                        {
+
+                                            new SalarySheetUrlGetTasks()
+                                            {
+                                                task_id = taskid,
+                                                state = "new",
+                                                task_type = "get_active_requests",
+                                                payload = new SalarySheetUrlPayloads
+                                                {
+                                                    phone = phoneNumber,
+                                                    period = taskbodyItems[4]
+                                                }
+                                            }
+                                        }
+                                    };
+                                    //serialize json response for sap 
+                                    options = new JsonSerializerOptions { WriteIndented = true };
+                                    jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetActivityRequest, options);
+                                    jsonLists.Add(jsonString);
+                                    try
+                                    {
+                                        using (var client = new HttpClient())
+                                        {
+                                            client.DefaultRequestHeaders.Authorization =
+                                                new AuthenticationHeaderValue(
+                                                    "Basic", Convert.ToBase64String(
+                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                            $"CH_MOBPO1_01:fgd$#456DF")));
+                                            var request = new HttpRequestMessage
+                                            {
+                                                Method = HttpMethod.Get,
+                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/ActiveOrderNoteRequest"),
+                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                            };
+                        
+                                            var response = await client.SendAsync(request).ConfigureAwait(false);
+                                            response.EnsureSuccessStatusCode();
+                        
+                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        
+                                        
+                                
+                                        }
+                                    }
+                                    catch (HttpRequestException e)
+                                    {
+                                        logger.LogInformation($"Error: {e.Message }");
+                                    }
                                     break;
+                            case "get_salary_sheet":
+                                var SapGetCancellationDocRequest = new SapGetSalarysheetUrl()
+                                    {
+                                        configuration = "<config_name>",
+                                        queue = "<queue_name>",
+
+                                        tasks = new List<SalarySheetUrlGetTasks>
+                                        {
+
+                                            new SalarySheetUrlGetTasks()
+                                            {
+                                                task_id = taskid,
+                                                state = "new",
+                                                task_type = "get_salary_sheet",
+                                                payload = new SalarySheetUrlPayloads
+                                                {
+                                                    phone = phoneNumber,
+                                                    period = taskbodyItems[4]
+                                                }
+                                            }
+                                        }
+                                    };
+                                    //serialize json response for sap 
+                                    options = new JsonSerializerOptions { WriteIndented = true };
+                                    jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetCancellationDocRequest, options);
+                                    jsonLists.Add(jsonString);
+                                    try
+                                    {
+                                        using (var client = new HttpClient())
+                                        {
+                                            client.DefaultRequestHeaders.Authorization =
+                                                new AuthenticationHeaderValue(
+                                                    "Basic", Convert.ToBase64String(
+                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                            $"CH_MOBPO1_01:fgd$#456DF")));
+                                            var request = new HttpRequestMessage
+                                            {
+                                                Method = HttpMethod.Get,
+                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/CancellationDocRequest"),
+                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                            };
+                        
+                                            var response = await client.SendAsync(request).ConfigureAwait(false);
+                                            response.EnsureSuccessStatusCode();
+                        
+                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        
+                                        
+                                
+                                        }
+                                    }
+                                    catch (HttpRequestException e)
+                                    {
+                                        logger.LogInformation($"Error: {e.Message }");
+                                    }
+                                    break;
+
+                            
                             default:
                                 break;
                         }
