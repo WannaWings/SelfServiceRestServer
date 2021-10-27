@@ -56,133 +56,219 @@ namespace RestService.BackgroundWorks
                 if (table.Rows.Count != 0){
                     for (int i = 0; i < table.Rows.Count; i++)
                     {
-
-                        //Queue queue = new Queue();
-                        // queue.QueueID = Convert.ToInt32(table.Rows[i]["queueid"]);
-                        // queue.TaskID = table.Rows[i]["taskid"].ToString();
-                        // queue.UserID = table.Rows[i]["userid"].ToString();
-                        // queue.taskbody = table.Rows[i]["taskbody"].ToString();
-                        //queuesList.Add(queue);
-                        
                         string taskid = table.Rows[i]["taskid"].ToString();
                         string taskbodyString = table.Rows[i]["taskbody"].ToString();
                         string[] taskbodyItems = taskbodyString.Split(',');
-
-
-                        string jsonString = "";
-                        if (taskbodyItems[2] == "Расчетный лист")
-                        {
-                            var SapGetModel = new SapGetModel
-                            {
-                                configuration = "<config_name>",
-                                queue = "<queue_name>",
-
-                                tasks = new List<GetTasks>
-                                {
-
-                                    new GetTasks()
-                                    {
-                                        task_id = taskid,
-                                        state = "new",
-                                        task_type = "get_available_salary_periods",
-                                        payload = new Payloads
-                                        {
-                                            phone = taskbodyItems[1]
-                                        }
-                                    }
-                                }
-                            };
-                            //serialize json response for sap 
-                            var options = new JsonSerializerOptions { WriteIndented = true };
-                            jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetModel, options);
+                        string flag = Convert.ToString(taskbodyItems[2]);
+                        var options=new JsonSerializerOptions { WriteIndented = true };;
                             
-                            try
-                            {
-                                using (var client = new HttpClient())
-                                {
-                                    client.DefaultRequestHeaders.Authorization =
-                                        new AuthenticationHeaderValue(
-                                            "Basic", Convert.ToBase64String(
-                                                System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                    $"CH_MOBPO1_01:fgd$#456DF")));
-                                    var request = new HttpRequestMessage
-                                    {
-                                        Method = HttpMethod.Get,
-                                        RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/SalarySheet_PeroidsListRequest"),
-                                        Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                    };
-                
-                                    var response = await client.SendAsync(request).ConfigureAwait(false);
-                                    response.EnsureSuccessStatusCode();
-                
-                                    var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                
-                                
-                        
-                                }
-                            }
-                            catch (HttpRequestException e)
-                            {
-                                logger.LogInformation($"Error: {e.Message }");
-                            }
-                        }
-                        if (taskbodyItems[2] == "Расчетный лист отрезок")
+                        string jsonString = "";
+                        switch (flag)
                         {
-                            var SapGetSalarysheetUrl = new SapGetSalarysheetUrl()
-                            {
-                                configuration = "<config_name>",
-                                queue = "<queue_name>",
-
-                                tasks = new List<SalarySheetUrlGetTasks>
+                            case "Расчетный лист":
+                                var SapGetModel = new SapGetModel
                                 {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
 
-                                    new SalarySheetUrlGetTasks()
+                                    tasks = new List<GetTasks>
                                     {
-                                        task_id = taskid,
-                                        state = "new",
-                                        task_type = "get_available_salary_periods",
-                                        payload = new SalarySheetUrlPayloads
+
+                                        new GetTasks()
                                         {
-                                            phone = taskbodyItems[1],
-                                            period = taskbodyItems[3]
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "get_available_salary_periods",
+                                            payload = new Payloads
+                                            {
+                                                phone = taskbodyItems[3]
+                                            }
                                         }
                                     }
-                                }
-                            };
-                            //serialize json response for sap 
-                            var options = new JsonSerializerOptions { WriteIndented = true };
-                            jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetSalarysheetUrl, options);
-                            jsonLists.Add(jsonString);
-                            try
-                            {
-                                using (var client = new HttpClient())
-                                {
-                                    client.DefaultRequestHeaders.Authorization =
-                                        new AuthenticationHeaderValue(
-                                            "Basic", Convert.ToBase64String(
-                                                System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                    $"CH_MOBPO1_01:fgd$#456DF")));
-                                    var request = new HttpRequestMessage
-                                    {
-                                        Method = HttpMethod.Get,
-                                        RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/SalarySheet_LinkRequest"),
-                                        Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                    };
-                
-                                    var response = await client.SendAsync(request).ConfigureAwait(false);
-                                    response.EnsureSuccessStatusCode();
-                
-                                    var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                
+                                };
+                                //serialize json response for sap 
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetModel, options);
                                 
-                        
+                                try
+                                {
+                                    using (var client = new HttpClient())
+                                    {
+                                        client.DefaultRequestHeaders.Authorization =
+                                            new AuthenticationHeaderValue(
+                                                "Basic", Convert.ToBase64String(
+                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                        $"CH_MOBPO1_01:fgd$#456DF")));
+                                        var request = new HttpRequestMessage
+                                        {
+                                            Method = HttpMethod.Get,
+                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/SalarySheet_PeroidsListRequest"),
+                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                        };
+                    
+                                        var response = await client.SendAsync(request).ConfigureAwait(false);
+                                        response.EnsureSuccessStatusCode();
+                    
+                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    
+                                    
+                            
+                                    }
                                 }
-                            }
-                            catch (HttpRequestException e)
-                            {
-                                logger.LogInformation($"Error: {e.Message }");
-                            }
+                                catch (HttpRequestException e)
+                                {
+                                    logger.LogInformation($"Error: {e.Message }");
+                                }
+                                break;
+                            case "sendSMS":
+                                var verifySMSModel = new SapGetModel
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+
+                                    tasks = new List<GetTasks>
+                                    {
+
+                                        new GetTasks()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "get_document_types",
+                                            payload = new Payloads
+                                            {
+                                                phone = taskbodyItems[3]
+                                            }
+                                        }
+                                    }
+                                };
+                                //serialize json response for sap 
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(verifySMSModel, options);
+                                
+                                try
+                                {
+                                    using (var client = new HttpClient())
+                                    {
+                                        client.DefaultRequestHeaders.Authorization =
+                                            new AuthenticationHeaderValue(
+                                                "Basic", Convert.ToBase64String(
+                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                        $"CH_MOBPO1_01:fgd$#456DF")));
+                                        var request = new HttpRequestMessage
+                                        {
+                                            Method = HttpMethod.Get,
+                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/AvailableDocTypesRequest"),
+                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                        };
+                    
+                                        var response = await client.SendAsync(request).ConfigureAwait(false);
+                                        response.EnsureSuccessStatusCode();
+                    
+                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                    }
+                                }
+                                catch (HttpRequestException e)
+                                {
+                                    logger.LogInformation($"Error: {e.Message }");
+                                }
+                                break;
+                            case "sendSMSCode":
+                                var sendSMSCode = new SendSMSCode
+                                {
+                                    phone = taskbodyItems[3],
+                                    message = taskbodyItems[4]
+                                };
+                                //serialize json response for sap 
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(sendSMSCode, options);
+                                
+                                try
+                                {
+                                    using (var client = new HttpClient())
+                                    {
+                                        client.DefaultRequestHeaders.Authorization =
+                                            new AuthenticationHeaderValue(
+                                                "Basic", Convert.ToBase64String(
+                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                        $"CH_MOBPO1_01:fgd$#456DF")));
+                                        var request = new HttpRequestMessage
+                                        {
+                                            Method = HttpMethod.Get,
+                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OTP_Out"),
+                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                        };
+                    
+                                        var response = await client.SendAsync(request).ConfigureAwait(false);
+                                        response.EnsureSuccessStatusCode();
+                    
+                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                    }
+                                }
+                                catch (HttpRequestException e)
+                                {
+                                    logger.LogInformation($"Error: {e.Message }");
+                                }
+                                break;
+                            case "Расчетный лист отрезок":
+                                var SapGetSalarysheetUrl = new SapGetSalarysheetUrl()
+                                    {
+                                        configuration = "<config_name>",
+                                        queue = "<queue_name>",
+
+                                        tasks = new List<SalarySheetUrlGetTasks>
+                                        {
+
+                                            new SalarySheetUrlGetTasks()
+                                            {
+                                                task_id = taskid,
+                                                state = "new",
+                                                task_type = "get_available_salary_periods",
+                                                payload = new SalarySheetUrlPayloads
+                                                {
+                                                    phone = taskbodyItems[3],
+                                                    period = taskbodyItems[4]
+                                                }
+                                            }
+                                        }
+                                    };
+                                    //serialize json response for sap 
+                                    options = new JsonSerializerOptions { WriteIndented = true };
+                                    jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetSalarysheetUrl, options);
+                                    jsonLists.Add(jsonString);
+                                    try
+                                    {
+                                        using (var client = new HttpClient())
+                                        {
+                                            client.DefaultRequestHeaders.Authorization =
+                                                new AuthenticationHeaderValue(
+                                                    "Basic", Convert.ToBase64String(
+                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                            $"CH_MOBPO1_01:fgd$#456DF")));
+                                            var request = new HttpRequestMessage
+                                            {
+                                                Method = HttpMethod.Get,
+                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/SalarySheet_LinkRequest"),
+                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                            };
+                        
+                                            var response = await client.SendAsync(request).ConfigureAwait(false);
+                                            response.EnsureSuccessStatusCode();
+                        
+                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        
+                                        
+                                
+                                        }
+                                    }
+                                    catch (HttpRequestException e)
+                                    {
+                                        logger.LogInformation($"Error: {e.Message }");
+                                    }
+                                    break;
+                            default:
+                                break;
                         }
+                        
                         
                         //send sap message
                         
