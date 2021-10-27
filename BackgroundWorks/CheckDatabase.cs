@@ -66,6 +66,7 @@ namespace RestService.BackgroundWorks
                         string jsonString = "";
                         switch (flag)
                         {
+                            //SalarySheet_PeroidsListRequest
                             case "Расчетный лист":
                                 var SapGetModel = new SapGetModel
                                 {
@@ -121,6 +122,7 @@ namespace RestService.BackgroundWorks
                                     logger.LogInformation($"Error: {e.Message }");
                                 }
                                 break;
+                            //AvailableDocTypesRequest
                             case "sendSMS":
                                 var verifySMSModel = new SapGetModel
                                 {
@@ -173,6 +175,7 @@ namespace RestService.BackgroundWorks
                                     logger.LogInformation($"Error: {e.Message }");
                                 }
                                 break;
+                            //OTP_Out
                             case "sendSMSCode":
                                 var sendSMSCode = new SendSMSCode
                                 {
@@ -210,6 +213,7 @@ namespace RestService.BackgroundWorks
                                     logger.LogInformation($"Error: {e.Message }");
                                 }
                                 break;
+                            //SalarySheet_LinkRequest
                             case "Расчетный лист отрезок":
                                 var SapGetSalarysheetUrl = new SapGetSalarysheetUrl()
                                     {
@@ -266,6 +270,7 @@ namespace RestService.BackgroundWorks
                                         logger.LogInformation($"Error: {e.Message }");
                                     }
                                     break; 
+                            //ActiveOrderNoteRequest
                             case "get_active_requests":
                                 var SapGetActivityRequest = new SapGetSalarysheetUrl()
                                     {
@@ -322,6 +327,7 @@ namespace RestService.BackgroundWorks
                                         logger.LogInformation($"Error: {e.Message }");
                                     }
                                     break;
+                            //CancellationDocRequest
                             case "get_salary_sheet":
                                 var SapGetCancellationDocRequest = new SapGetSalarysheetUrl()
                                     {
@@ -378,7 +384,176 @@ namespace RestService.BackgroundWorks
                                         logger.LogInformation($"Error: {e.Message }");
                                     }
                                     break;
+                            //RestOfVacationRequest
+                            case "RestOfVacationRequest":
+                                var restOfVacationRequestModel = new RestOfVacationRequestModel()
+                                    {
+                                        configuration = "<config_name>",
+                                        queue = "<queue_name>",
 
+                                        tasks = new List<RestOfVacationRequestModelTasks>
+                                        {
+
+                                            new RestOfVacationRequestModelTasks()
+                                            {
+                                                task_id = taskid,
+                                                state = "new",
+                                                task_type = "user_info",
+                                                payload = new RestOfVacationRequestModelPayloads
+                                                {
+                                                    phone = phoneNumber,
+                                                    date = taskbodyItems[4]
+                                                }
+                                            }
+                                        }
+                                    };
+                                    //serialize json response for sap 
+                                    options = new JsonSerializerOptions { WriteIndented = true };
+                                    jsonString = System.Text.Json.JsonSerializer.Serialize(restOfVacationRequestModel, options);
+                                    jsonLists.Add(jsonString);
+                                    try
+                                    {
+                                        using (var client = new HttpClient())
+                                        {
+                                            client.DefaultRequestHeaders.Authorization =
+                                                new AuthenticationHeaderValue(
+                                                    "Basic", Convert.ToBase64String(
+                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                            $"CH_MOBPO1_01:fgd$#456DF")));
+                                            var request = new HttpRequestMessage
+                                            {
+                                                Method = HttpMethod.Get,
+                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/RestOfVacationRequest"),
+                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                            };
+                        
+                                            var response = await client.SendAsync(request).ConfigureAwait(false);
+                                            response.EnsureSuccessStatusCode();
+                        
+                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        
+                                        
+                                
+                                        }
+                                    }
+                                    catch (HttpRequestException e)
+                                    {
+                                        logger.LogInformation($"Error: {e.Message }");
+                                    }
+                                    break;
+                            //ConditionAndPlaceOfWorkRequest
+                            case "ConditionAndPlaceOfWorkRequest":
+                                var conditionAndPlaceOfWorkRequest = new SapGetModel
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+
+                                    tasks = new List<GetTasks>
+                                    {
+
+                                        new GetTasks()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "user_info",
+                                            payload = new Payloads
+                                            {
+                                                phone = phoneNumber
+                                            }
+                                        }
+                                    }
+                                };
+                                //serialize json response for sap 
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(conditionAndPlaceOfWorkRequest, options);
+                                
+                                try
+                                {
+                                    using (var client = new HttpClient())
+                                    {
+                                        client.DefaultRequestHeaders.Authorization =
+                                            new AuthenticationHeaderValue(
+                                                "Basic", Convert.ToBase64String(
+                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                        $"CH_MOBPO1_01:fgd$#456DF")));
+                                        var request = new HttpRequestMessage
+                                        {
+                                            Method = HttpMethod.Get,
+                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/ConditionAndPlaceOfWorkRequest"),
+                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                        };
+                    
+                                        var response = await client.SendAsync(request).ConfigureAwait(false);
+                                        response.EnsureSuccessStatusCode();
+                    
+                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    
+                                    
+                            
+                                    }
+                                }
+                                catch (HttpRequestException e)
+                                {
+                                    logger.LogInformation($"Error: {e.Message }");
+                                }
+                                break;
+                            //OrderNote_PeriodsListRequest
+                            case "OrderNote_PeriodsListRequest":
+                                var orderNote_PeriodsListRequest = new SapGetModel
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+
+                                    tasks = new List<GetTasks>
+                                    {
+
+                                        new GetTasks()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "get_available_employment_history_periods",
+                                            payload = new Payloads
+                                            {
+                                                phone = phoneNumber
+                                            }
+                                        }
+                                    }
+                                };
+                                //serialize json response for sap 
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(orderNote_PeriodsListRequest, options);
+                                
+                                try
+                                {
+                                    using (var client = new HttpClient())
+                                    {
+                                        client.DefaultRequestHeaders.Authorization =
+                                            new AuthenticationHeaderValue(
+                                                "Basic", Convert.ToBase64String(
+                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                                        $"CH_MOBPO1_01:fgd$#456DF")));
+                                        var request = new HttpRequestMessage
+                                        {
+                                            Method = HttpMethod.Get,
+                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_PeriodsListRequest"),
+                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                                        };
+                    
+                                        var response = await client.SendAsync(request).ConfigureAwait(false);
+                                        response.EnsureSuccessStatusCode();
+                    
+                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    
+                                    
+                            
+                                    }
+                                }
+                                catch (HttpRequestException e)
+                                {
+                                    logger.LogInformation($"Error: {e.Message }");
+                                }
+                                break;
+                            
                             
                             default:
                                 break;
