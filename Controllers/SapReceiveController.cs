@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
@@ -92,9 +93,12 @@ namespace RestService.Controllers
                     if (sap.tasks.payload.url != null)
                     {
                         payload = payload + "|" + sap.tasks.payload.url;
+                        //save file to postgresql
+
+
+                        saveToDB(sap.tasks.payload.url, sap.tasks.task_id);
                     }
-
-
+                    
                     myCommand.Parameters.AddWithValue("@userid", "defoult");
                     myCommand.Parameters.AddWithValue("@taskid", sap.tasks.task_id);
                     myCommand.Parameters.AddWithValue("@completed", sap.tasks.completed);
@@ -104,13 +108,38 @@ namespace RestService.Controllers
                     myCommand.Parameters.AddWithValue("@dateofcreating", DateTime.Now);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
-
                     myReader.Close();
                     myCon.Close();
                 }
             }
             return new JsonResult("Added succesfully =)");
 
+
+        }
+        public static bool saveToDB(string url, string taskid)
+        {
+            WebClient myWebClient = new WebClient();
+            byte[] bytes = myWebClient.DownloadData(url);
+
+            var cs = "Host=10.55.60.160;Username=m.valiev;Password=pa55w0rd!;Database=Portal.Bot";
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+            
+            using (NpgsqlCommand cmdUpload = new NpgsqlCommand())
+            {
+               
+                cmdUpload.CommandText = "insert into saved_files(taskid, file, status,createtime) values(@taskid, @file,@status,@createtime) ";
+                
+                cmdUpload.Parameters.AddWithValue("@taskid", taskid);
+                cmdUpload.Parameters.AddWithValue("@file", bytes);
+                cmdUpload.Parameters.AddWithValue("@status", "created");
+                cmdUpload.Parameters.AddWithValue("@createtime", DateTime.Now);
+                cmdUpload.Connection = con;
+                // con.Open();
+                cmdUpload.ExecuteNonQuery();
+                con.Close();
+            }
+            return true;
 
         }
     }
