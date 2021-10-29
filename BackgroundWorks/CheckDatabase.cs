@@ -32,6 +32,10 @@ namespace RestService.BackgroundWorks
         {
             while (!cancellationToken.IsCancellationRequested)
             {
+                //delete saved file after 10 minutes
+                deleteRowInDB();
+                
+                
                 List<string> jsonLists = new List<string>();
                 List<Queue> queuesList = new List<Queue>();
                 //check queue in DB where status = true
@@ -1004,5 +1008,36 @@ namespace RestService.BackgroundWorks
                 await Task.Delay(1000 * 5);
             }
         }
+        
+        
+        public static bool deleteRowInDB()
+        {
+            var date = DateTime.Now.AddMinutes(-10);
+            var sqlDataSource = "Host=10.55.60.160;Username=m.valiev;Password=pa55w0rd!;Database=Portal.Bot";
+            
+            //string query = @"select * from saved_files where createtime<@date or status = 'downloaded'";
+            string query = @"delete from saved_files where createtime<@date";
+            
+
+            DataTable table = new DataTable();
+            NpgsqlDataReader myReader;
+            using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (NpgsqlCommand myCommand = new NpgsqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@date", date);
+                   
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    myCon.Close();
+                }
+
+                return true;
+            }
+        }
+        
     }
 }
