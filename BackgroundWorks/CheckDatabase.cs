@@ -515,7 +515,7 @@ namespace RestService.BackgroundWorks
                                         {
                                             task_id = taskid,
                                             state = "new",
-                                            task_type = "get_available_employment_history_periods",
+                                            task_type = taskbodyItems[5],
                                             payload = new Payloads
                                             {
                                                 phone = phoneNumber
@@ -557,6 +557,7 @@ namespace RestService.BackgroundWorks
                                     logger.LogInformation($"Error: {e.Message }");
                                 }
                                 break;
+                            
                             //OrderNote_2NDFLRequest 
                             case "get_2ndfl_sheet":
                                 var orderNote_2NDFLRequest = new OrderNote_2NDFLRequestModel
@@ -634,7 +635,7 @@ namespace RestService.BackgroundWorks
                                                 payload = new OrderNote_PlaceListRequestPayloads
                                                 {
                                                     phone = phoneNumber,
-                                                    doc_type = taskbodyItems[4]
+                                                    doc_type = taskbodyItems[5]
                                                 }
                                             }
                                         }

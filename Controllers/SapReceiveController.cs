@@ -4,11 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Npgsql;
 using RestService.Models;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
 
@@ -90,6 +87,19 @@ namespace RestService.Controllers
                     {
                         payload = payload + "|" + sap.tasks.payload.text;
                     }
+                    if (sap.tasks.payload.doc_types != null)
+                    {
+                        temp = "";
+                        foreach (var i in sap.tasks.payload.doc_types)
+                        {
+                            temp = temp + ";" + i;
+                        }
+                        payload = payload + "|" + temp;
+                    }
+                    // if (sap.tasks.payload.valid != null)
+                    // {
+                    //     payload = payload + "|" + sap.tasks.payload.valid;
+                    // }
                     if (sap.tasks.payload.url != null)
                     {
                         payload = payload + "|" + sap.tasks.payload.url;
