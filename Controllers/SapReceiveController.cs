@@ -63,7 +63,7 @@ namespace RestService.Controllers
                         temp = "";
                         foreach (Requests requests in sap.tasks.payload.requests)
                         {
-                            temp = temp + ";" + requests.key + ":" + requests.name + ":" + requests.status + ":" + requests.info;
+                            temp = temp + "/#" + requests.key + "//@" + requests.name + "//@" + requests.status + "//@" + requests.info;
                         }
                         payload = payload + "|" + temp;
                     }

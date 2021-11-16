@@ -332,31 +332,31 @@ namespace RestService.BackgroundWorks
                                     }
                                     break;
                             //CancellationDocRequest
-                            case "get_salary_sheet":
-                                var SapGetCancellationDocRequest = new SapGetSalarysheetUrl()
+                            case "cancel_request":
+                                var cancelRequestModel = new CancelRequestModel()
                                     {
                                         configuration = "<config_name>",
                                         queue = "<queue_name>",
 
-                                        tasks = new List<SalarySheetUrlGetTasks>
+                                        tasks = new List<CancelRequestModelTasks>
                                         {
 
-                                            new SalarySheetUrlGetTasks()
+                                            new CancelRequestModelTasks()
                                             {
                                                 task_id = taskid,
                                                 state = "new",
-                                                task_type = "get_salary_sheet",
-                                                payload = new SalarySheetUrlPayloads
+                                                task_type = "cancel_request",
+                                                payload = new CancelRequestModelPayloads
                                                 {
                                                     phone = phoneNumber,
-                                                    period = taskbodyItems[4]
+                                                    key = taskbodyItems[4]
                                                 }
                                             }
                                         }
                                     };
                                     //serialize json response for sap 
                                     options = new JsonSerializerOptions { WriteIndented = true };
-                                    jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetCancellationDocRequest, options);
+                                    jsonString = System.Text.Json.JsonSerializer.Serialize(cancelRequestModel, options);
                                     jsonLists.Add(jsonString);
                                     try
                                     {
