@@ -27,7 +27,7 @@ namespace RestService
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            logger.LogInformation("lel stoped");
+            logger.LogInformation("stoped");
             return Task.CompletedTask;
         }
     }

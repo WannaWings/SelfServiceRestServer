@@ -294,11 +294,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal\\RestService.csproj",
+      "projectUniqueName": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal - DEV\\RestService.csproj",
       "projectName": "RestService",
-      "projectPath": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal\\RestService.csproj",
+      "projectPath": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal - DEV\\RestService.csproj",
       "packagesPath": "C:\\Users\\m.valiev\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal\\obj\\",
+      "outputPath": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal - DEV\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\m.valiev\\AppData\\Roaming\\NuGet\\NuGet.Config",

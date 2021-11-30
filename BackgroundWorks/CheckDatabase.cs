@@ -378,9 +378,6 @@ namespace RestService.BackgroundWorks
                                             response.EnsureSuccessStatusCode();
                         
                                             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        
-                                        
-                                
                                         }
                                     }
                                     catch (HttpRequestException e)
@@ -995,18 +992,8 @@ namespace RestService.BackgroundWorks
                     
                 }
                 
-                
-                
-                
-                
-                
-                
-                
                 logger.LogInformation($"am working");
-
-                
-                
-                await Task.Delay(1000 * 5);
+                await Task.Delay(1000 * 1); // timer each 1 sec 
             }
         }
         

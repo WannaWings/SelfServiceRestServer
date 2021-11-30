@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ATEcV9ynheYkQE9vun3zhfNvR1ObEERu/TxPVJxnJ8ZsRUShCuxaxwPpmRebGQXE9CinUdGuhaRTTBq0rQjhtQ==",
+  "dgSpecHash": "8g8IlbCZS4cM2N4QAMeTvO40UaquFV7JSH9sHuv46ShXAFYD7rUZhKVXWXVOvf/QgVjmiKYfbBk6ttJCUtf25A==",
   "success": true,
-  "projectFilePath": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal\\RestService.csproj",
+  "projectFilePath": "C:\\Users\\m.valiev\\source\\repos\\RestServiceFinal - DEV\\RestService.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\m.valiev\\.nuget\\packages\\microsoft.aspnetcore.jsonpatch\\3.1.19\\microsoft.aspnetcore.jsonpatch.3.1.19.nupkg.sha512",
     "C:\\Users\\m.valiev\\.nuget\\packages\\microsoft.aspnetcore.mvc.newtonsoftjson\\3.1.19\\microsoft.aspnetcore.mvc.newtonsoftjson.3.1.19.nupkg.sha512",
