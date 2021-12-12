@@ -30,7 +30,7 @@ namespace RestService.Controllers
 
 
             DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("RestServerAppCon");
+            string sqlDataSource = _configuration.GetConnectionString("DBConnect");
             NpgsqlDataReader myReader;
             using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
             {
@@ -57,7 +57,7 @@ namespace RestService.Controllers
                                   VALUES (@userid, @taskid, @taskbody, @status, @dateofcreating)";
 
             DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("RestServerAppCon");
+            string sqlDataSource = _configuration.GetConnectionString("DBConnect");
             NpgsqlDataReader myReader;
             using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
             {
@@ -89,7 +89,7 @@ namespace RestService.Controllers
                             where taskid = @taskid";
 
             DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("RestServerAppCon");
+            string sqlDataSource = _configuration.GetConnectionString("DBConnect");
             NpgsqlDataReader myReader;
             using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
             {
@@ -116,7 +116,7 @@ namespace RestService.Controllers
                             where taskid = @taskid";
 
             DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("RestServerAppCon");
+            string sqlDataSource = _configuration.GetConnectionString("DBConnect");
             NpgsqlDataReader myReader;
             using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
             {

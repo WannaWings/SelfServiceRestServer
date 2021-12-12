@@ -33,7 +33,7 @@ namespace RestService.Controllers
                                   VALUES (@userid, @taskid, @completed,@job_status, @taskbody, @taskresult, @dateofcreating)";
 
             DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("RestServerAppCon");
+            string sqlDataSource = _configuration.GetConnectionString("DBConnect");
             NpgsqlDataReader myReader;
             using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
             {
@@ -126,12 +126,12 @@ namespace RestService.Controllers
 
 
         }
-        public static bool saveToDB(string url, string taskid)
+        public bool saveToDB(string url, string taskid)
         {
             WebClient myWebClient = new WebClient();
             byte[] bytes = myWebClient.DownloadData(url);
 
-            var cs = "Host=10.55.60.160;Username=m.valiev;Password=pa55w0rd!;Database=Portal.Bot";
+            var cs = _configuration.GetConnectionString("DBConnect");
             using var con = new NpgsqlConnection(cs);
             con.Open();
             

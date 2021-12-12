@@ -52,3 +52,30 @@ C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\RestSe
 C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\RestService.dll
 C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\RestService.pdb
 C:\Users\m.valiev\source\repos\RestServiceFinal\obj\Release\netcoreapp3.1\RestService.genruntimeconfig.cache
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\appsettings.Development.json
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\appsettings.json
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\RestService.exe
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\RestService.deps.json
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\RestService.runtimeconfig.json
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\RestService.runtimeconfig.dev.json
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\RestService.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\RestService.pdb
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\Newtonsoft.Json.Bson.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\Npgsql.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.csproj.AssemblyReference.cache
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.AssemblyInfoInputs.cache
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.AssemblyInfo.cs
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.csproj.CoreCompileInputs.cache
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\staticwebassets\RestService.StaticWebAssets.Manifest.cache
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\staticwebassets\RestService.StaticWebAssets.xml
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\scopedcss\bundle\RestService.styles.css
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.RazorTargetAssemblyInfo.cache
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.csproj.CopyComplete
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.dll
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.pdb
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.genruntimeconfig.cache

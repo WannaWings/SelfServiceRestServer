@@ -36,13 +36,13 @@ namespace RestService.BackgroundWorks
                 deleteRowInDB();
                 
                 
-                List<string> jsonLists = new List<string>();
+                //List<string> jsonLists = new List<string>();
                 List<Queue> queuesList = new List<Queue>();
                 //check queue in DB where status = true
                 string query = @"select  * from queue where status='fromAzure'";
 
                 DataTable table = new DataTable();
-                string sqlDataSource = _configuration.GetConnectionString("RestServerAppCon");
+                string sqlDataSource = _configuration.GetConnectionString("DBConnect");
                 NpgsqlDataReader myReader;
                 using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
                 {
@@ -66,12 +66,13 @@ namespace RestService.BackgroundWorks
                         string flag = Convert.ToString(taskbodyItems[2]);
                         var options=new JsonSerializerOptions { WriteIndented = true };
                         string phoneNumber = taskbodyItems[3];
-
+                        string urlPath;
                         string jsonString = "";
                         switch (flag)
                         {
                             //SalarySheet_PeroidsListRequest
                             case "Расчетный лист":
+                                urlPath = "/RESTAdapter/Portal/SalarySheet_PeroidsListRequest";
                                 var SapGetModel = new SapGetModel
                                 {
                                     configuration = "<config_name>",
@@ -96,38 +97,11 @@ namespace RestService.BackgroundWorks
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetModel, options);
                                 
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/SalarySheet_PeroidsListRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    
-                                    
-                            
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             //AvailableDocTypesRequest
                             case "sendSMS":
+                                urlPath = "/Portal/AvailableDocTypesRequest";
                                 var verifySMSModel = new SapGetModel
                                 {
                                     configuration = "<config_name>",
@@ -151,36 +125,11 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(verifySMSModel, options);
-                                
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/AvailableDocTypesRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             //OTP_Out
                             case "sendSMSCode":
+                                urlPath = "/OTP_Out";
                                 var sendSMSCode = new SendSMSCode
                                 {
                                     phone = taskbodyItems[3],
@@ -189,36 +138,11 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(sendSMSCode, options);
-                                
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OTP_Out"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             //SalarySheet_LinkRequest
                             case "Расчетный лист отрезок":
+                                urlPath = "/Portal/SalarySheet_LinkRequest";
                                 var SapGetSalarysheetUrl = new SapGetSalarysheetUrl()
                                     {
                                         configuration = "<config_name>",
@@ -243,39 +167,11 @@ namespace RestService.BackgroundWorks
                                     //serialize json response for sap 
                                     options = new JsonSerializerOptions { WriteIndented = true };
                                     jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetSalarysheetUrl, options);
-                                    jsonLists.Add(jsonString);
-                                    try
-                                    {
-                                        using (var client = new HttpClient())
-                                        {
-                                            client.DefaultRequestHeaders.Authorization =
-                                                new AuthenticationHeaderValue(
-                                                    "Basic", Convert.ToBase64String(
-                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                            $"CH_MOBPO1_01:fgd$#456DF")));
-                                            var request = new HttpRequestMessage
-                                            {
-                                                Method = HttpMethod.Get,
-                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/SalarySheet_LinkRequest"),
-                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                            };
-                        
-                                            var response = await client.SendAsync(request).ConfigureAwait(false);
-                                            response.EnsureSuccessStatusCode();
-                        
-                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        
-                                        
-                                
-                                        }
-                                    }
-                                    catch (HttpRequestException e)
-                                    {
-                                        logger.LogInformation($"Error: {e.Message }");
-                                    }
-                                    break; 
+                                    await SendWebRequestAsync(urlPath, jsonString);
+                                break; 
                             //ActiveOrderNoteRequest
                             case "get_active_requests":
+                                urlPath = "/Portal/ActiveOrderNoteRequest";
                                 var SapGetActivityRequest = new SapGetSalarysheetUrl()
                                     {
                                         configuration = "<config_name>",
@@ -300,39 +196,11 @@ namespace RestService.BackgroundWorks
                                     //serialize json response for sap 
                                     options = new JsonSerializerOptions { WriteIndented = true };
                                     jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetActivityRequest, options);
-                                    jsonLists.Add(jsonString);
-                                    try
-                                    {
-                                        using (var client = new HttpClient())
-                                        {
-                                            client.DefaultRequestHeaders.Authorization =
-                                                new AuthenticationHeaderValue(
-                                                    "Basic", Convert.ToBase64String(
-                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                            $"CH_MOBPO1_01:fgd$#456DF")));
-                                            var request = new HttpRequestMessage
-                                            {
-                                                Method = HttpMethod.Get,
-                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/ActiveOrderNoteRequest"),
-                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                            };
-                        
-                                            var response = await client.SendAsync(request).ConfigureAwait(false);
-                                            response.EnsureSuccessStatusCode();
-                        
-                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        
-                                        
-                                
-                                        }
-                                    }
-                                    catch (HttpRequestException e)
-                                    {
-                                        logger.LogInformation($"Error: {e.Message }");
-                                    }
-                                    break;
+                                    await SendWebRequestAsync(urlPath, jsonString);
+                                break;
                             //CancellationDocRequest
                             case "cancel_request":
+                                urlPath = "/Portal/CancellationDocRequest";
                                 var cancelRequestModel = new CancelRequestModel()
                                     {
                                         configuration = "<config_name>",
@@ -357,36 +225,12 @@ namespace RestService.BackgroundWorks
                                     //serialize json response for sap 
                                     options = new JsonSerializerOptions { WriteIndented = true };
                                     jsonString = System.Text.Json.JsonSerializer.Serialize(cancelRequestModel, options);
-                                    jsonLists.Add(jsonString);
-                                    try
-                                    {
-                                        using (var client = new HttpClient())
-                                        {
-                                            client.DefaultRequestHeaders.Authorization =
-                                                new AuthenticationHeaderValue(
-                                                    "Basic", Convert.ToBase64String(
-                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                            $"CH_MOBPO1_01:fgd$#456DF")));
-                                            var request = new HttpRequestMessage
-                                            {
-                                                Method = HttpMethod.Get,
-                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/CancellationDocRequest"),
-                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                            };
-                        
-                                            var response = await client.SendAsync(request).ConfigureAwait(false);
-                                            response.EnsureSuccessStatusCode();
-                        
-                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                                        }
-                                    }
-                                    catch (HttpRequestException e)
-                                    {
-                                        logger.LogInformation($"Error: {e.Message }");
-                                    }
+                                    await SendWebRequestAsync(urlPath, jsonString);
+                                    
                                     break;
                             //RestOfVacationRequest
                             case "RestOfVacationRequest":
+                                urlPath = "/Portal/RestOfVacationRequest";
                                 var restOfVacationRequestModel = new RestOfVacationRequestModel()
                                     {
                                         configuration = "<config_name>",
@@ -411,39 +255,12 @@ namespace RestService.BackgroundWorks
                                     //serialize json response for sap 
                                     options = new JsonSerializerOptions { WriteIndented = true };
                                     jsonString = System.Text.Json.JsonSerializer.Serialize(restOfVacationRequestModel, options);
-                                    jsonLists.Add(jsonString);
-                                    try
-                                    {
-                                        using (var client = new HttpClient())
-                                        {
-                                            client.DefaultRequestHeaders.Authorization =
-                                                new AuthenticationHeaderValue(
-                                                    "Basic", Convert.ToBase64String(
-                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                            $"CH_MOBPO1_01:fgd$#456DF")));
-                                            var request = new HttpRequestMessage
-                                            {
-                                                Method = HttpMethod.Get,
-                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/RestOfVacationRequest"),
-                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                            };
-                        
-                                            var response = await client.SendAsync(request).ConfigureAwait(false);
-                                            response.EnsureSuccessStatusCode();
-                        
-                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        
-                                        
-                                
-                                        }
-                                    }
-                                    catch (HttpRequestException e)
-                                    {
-                                        logger.LogInformation($"Error: {e.Message }");
-                                    }
+                                    await SendWebRequestAsync(urlPath, jsonString);
+                                    
                                     break;
                             //ConditionAndPlaceOfWorkRequest
                             case "ConditionAndPlaceOfWorkRequest":
+                                urlPath = "/Portal/ConditionAndPlaceOfWorkRequest";
                                 var conditionAndPlaceOfWorkRequest = new SapGetModel
                                 {
                                     configuration = "<config_name>",
@@ -467,39 +284,11 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(conditionAndPlaceOfWorkRequest, options);
-                                
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/ConditionAndPlaceOfWorkRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    
-                                    
-                            
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             //OrderNote_PeriodsListRequest
                             case "OrderNote_PeriodsListRequest":
+                                urlPath = "/Portal/OrderNote_PeriodsListRequest";
                                 var orderNote_PeriodsListRequest = new SapGetModel
                                 {
                                     configuration = "<config_name>",
@@ -523,40 +312,12 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(orderNote_PeriodsListRequest, options);
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_PeriodsListRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    
-                                    
-                            
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
                                 break;
-                            
                             //OrderNote_2NDFLRequest 
                             case "get_2ndfl_sheet":
+                                urlPath = "/Portal/OrderNote_2NDFLRequest";
                                 var orderNote_2NDFLRequest = new OrderNote_2NDFLRequestModel
                                 {
                                     configuration = "<config_name>",
@@ -583,39 +344,11 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(orderNote_2NDFLRequest, options);
-                                
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_2NDFLRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    
-                                    
-                            
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             //OrderNote_PlaceListRequest
                             case "get_available_locations":
+                                urlPath = "/Portal/OrderNote_PlaceListRequest";
                                 var orderNote_PlaceListRequest = new OrderNote_PlaceListRequestModel()
                                     {
                                         configuration = "<config_name>",
@@ -640,39 +373,11 @@ namespace RestService.BackgroundWorks
                                     //serialize json response for sap 
                                     options = new JsonSerializerOptions { WriteIndented = true };
                                     jsonString = System.Text.Json.JsonSerializer.Serialize(orderNote_PlaceListRequest, options);
-                                    jsonLists.Add(jsonString);
-                                    try
-                                    {
-                                        using (var client = new HttpClient())
-                                        {
-                                            client.DefaultRequestHeaders.Authorization =
-                                                new AuthenticationHeaderValue(
-                                                    "Basic", Convert.ToBase64String(
-                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                            $"CH_MOBPO1_01:fgd$#456DF")));
-                                            var request = new HttpRequestMessage
-                                            {
-                                                Method = HttpMethod.Get,
-                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_PlaceListRequest"),
-                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                            };
-                        
-                                            var response = await client.SendAsync(request).ConfigureAwait(false);
-                                            response.EnsureSuccessStatusCode();
-                        
-                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        
-                                        
-                                
-                                        }
-                                    }
-                                    catch (HttpRequestException e)
-                                    {
-                                        logger.LogInformation($"Error: {e.Message }");
-                                    }
-                                    break; 
+                                    await SendWebRequestAsync(urlPath, jsonString);
+                                break; 
                             //OrderNote_FromJobRequest
                             case "get_working_place_sheet":
+                                urlPath = "/Portal/OrderNote_FromJobRequest";
                                 var OrderNote_FromJobRequest = new OrderNote_FromJobRequestModel()
                                     {
                                         configuration = "<config_name>",
@@ -699,38 +404,13 @@ namespace RestService.BackgroundWorks
                                         }
                                     };
                                     //serialize json response for sap 
-                                    options = new JsonSerializerOptions { WriteIndented = true };
-                                    jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_FromJobRequest, options);
-                                    jsonLists.Add(jsonString);
-                                    try
-                                    {
-                                        using (var client = new HttpClient())
-                                        {
-                                            client.DefaultRequestHeaders.Authorization =
-                                                new AuthenticationHeaderValue(
-                                                    "Basic", Convert.ToBase64String(
-                                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                            $"CH_MOBPO1_01:fgd$#456DF")));
-                                            var request = new HttpRequestMessage
-                                            {
-                                                Method = HttpMethod.Get,
-                                                RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_FromJobRequest"),
-                                                Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                            };
-                        
-                                            var response = await client.SendAsync(request).ConfigureAwait(false);
-                                            response.EnsureSuccessStatusCode();
-                        
-                                            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                                        }
-                                    }
-                                    catch (HttpRequestException e)
-                                    {
-                                        logger.LogInformation($"Error: {e.Message }");
-                                    }
-                                    break; 
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_FromJobRequest, options);
+                                await SendWebRequestAsync(urlPath, jsonString);
+                                break; 
                             //OrderNote_SeniorityRequest
                             case "get_szv_sheet":
+                                urlPath = "/Portal/OrderNote_SeniorityRequest";
                                 var OrderNote_SeniorityRequest = new SapGetModel
                                 {
                                     configuration = "<config_name>",
@@ -754,39 +434,11 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_SeniorityRequest, options);
-                                
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_SeniorityRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    
-                                    
-                            
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             //OrderNote_VacationRequest
                             case "get_vacations_sheet":
+                                urlPath = "/Portal/OrderNote_VacationRequest";
                                 var OrderNote_VacationRequest = new OrderNote_2NDFLRequestModel
                                 {
                                     configuration = "<config_name>",
@@ -813,39 +465,11 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_VacationRequest, options);
-                                
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_VacationRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    
-                                    
-                            
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             //OrderNote_WorkBookExtractionRequest
                             case "get_employment_history_part_copy":
+                                urlPath = "/Portal/OrderNote_WorkBookExtractionRequest";
                                 var OrderNote_WorkBookExtractionRequest = new OrderNote_2NDFLRequestModel
                                 {
                                     configuration = "<config_name>",
@@ -872,39 +496,13 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_WorkBookExtractionRequest, options);
+                                await SendWebRequestAsync(urlPath, jsonString);
+
                                 
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_WorkBookExtractionRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    
-                                    
-                            
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
                                 break;
                             //OrderNote_WorkBookCopyRequest
                             case "get_employment_history_copy":
+                                urlPath = "/Portal/OrderNote_WorkBookCopyRequest";
                                 var OrderNote_WorkBookCopyRequest = new OrderNote_WorkBookCopyRequestModel
                                 {
                                     configuration = "<config_name>",
@@ -932,39 +530,8 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_WorkBookCopyRequest, options);
-                                
-                                try
-                                {
-                                    using (var client = new HttpClient())
-                                    {
-                                        client.DefaultRequestHeaders.Authorization =
-                                            new AuthenticationHeaderValue(
-                                                "Basic", Convert.ToBase64String(
-                                                    System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                                        $"CH_MOBPO1_01:fgd$#456DF")));
-                                        var request = new HttpRequestMessage
-                                        {
-                                            Method = HttpMethod.Get,
-                                            RequestUri = new Uri("http://sappo1ci.sap.metinvest.com:50000/RESTAdapter/Portal/OrderNote_WorkBookCopyRequest"),
-                                            Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
-                                        };
-                    
-                                        var response = await client.SendAsync(request).ConfigureAwait(false);
-                                        response.EnsureSuccessStatusCode();
-                    
-                                        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    
-                                    
-                            
-                                    }
-                                }
-                                catch (HttpRequestException e)
-                                {
-                                    logger.LogInformation($"Error: {e.Message }");
-                                }
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
-
-                            
                             default:
                                 break;
                         }
@@ -993,15 +560,15 @@ namespace RestService.BackgroundWorks
                 }
                 
                 logger.LogInformation($"am working");
-                await Task.Delay(1000 * 1); // timer each 1 sec 
+                await Task.Delay(500); // timer each 1 sec 
             }
         }
         
         
-        public static bool deleteRowInDB()
+        public bool deleteRowInDB()
         {
             var date = DateTime.Now.AddMinutes(-10);
-            var sqlDataSource = "Host=10.55.60.160;Username=m.valiev;Password=pa55w0rd!;Database=Portal.Bot";
+            var sqlDataSource = _configuration.GetConnectionString("DBConnect");
             
             //string query = @"select * from saved_files where createtime<@date or status = 'downloaded'";
             string query = @"delete from saved_files where createtime<@date";
@@ -1027,5 +594,38 @@ namespace RestService.BackgroundWorks
             }
         }
         
+
+        //urlPath should be /Portal/some/path
+        private async Task SendWebRequestAsync(string urlPath, string jsonString)
+        {
+            try
+            {
+                string loginPass = _configuration.GetConnectionString("LoginPass");
+                string url =  _configuration.GetConnectionString("SapURL");
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue(
+                            "Basic", Convert.ToBase64String(
+                                System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                    loginPass)));
+                    var request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Get,
+                        RequestUri = new Uri(url +  urlPath),
+                        Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                    };
+                    
+                    var response = await client.SendAsync(request).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
+                    
+                    var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                logger.LogInformation($"Error: {e.Message }");
+            }
+        }
     }
 }
