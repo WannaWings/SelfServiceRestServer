@@ -25,12 +25,12 @@ namespace RestService.Controllers
 
 
         [HttpPost]
-        public JsonResult Post(SapReceive sap)
+        public JsonResult Post(OneCReceive OneCModel)
         {
             string temp = "";
             string payload = "";
-            string query = @"insert into sap_results(userid, taskid, completed,job_status, taskbody, taskresult, dateofcreating) 
-                                  VALUES (@userid, @taskid, @completed,@job_status, @taskbody, @taskresult, @dateofcreating)";
+            string query = @"insert into OneCModel_results(userid, taskid, completed,job_status, taskbody, taskresult, dateofcreating, datecamefrom, lastupdate) 
+                                  VALUES (@userid, @taskid, @completed,@job_status, @taskbody, @taskresult, @dateofcreating, @datecamefrom, @lastupdate)";
 
             DataTable table = new DataTable();
             string sqlDataSource = _configuration.GetConnectionString("DBConnect");
@@ -41,81 +41,83 @@ namespace RestService.Controllers
                 using (NpgsqlCommand myCommand = new NpgsqlCommand(query, myCon))
                 {
                     
-                    if (sap.tasks.payload.periods != null)
+                    if (OneCModel.tasks.payload.periods != null)
                     {
-                        foreach (Period period in sap.tasks.payload.periods)
+                        foreach (Period period in OneCModel.tasks.payload.periods)
                         {
                             temp = temp + ";" + period.key + ":" + period.value;
                         }
                         payload = payload + "|" + temp;
                     }
-                    if (sap.tasks.payload.locations != null)
+                    if (OneCModel.tasks.payload.locations != null)
                     {
                         temp = "";
-                        foreach (Location location in sap.tasks.payload.locations)
+                        foreach (Location location in OneCModel.tasks.payload.locations)
                         {
                             temp = temp + ";" + location.key + ":" + location.value;
                         }
                         payload = payload + "|" + temp;
                     }
-                    if (sap.tasks.payload.requests != null)
+                    if (OneCModel.tasks.payload.requests != null)
                     {
                         temp = "";
-                        foreach (Requests requests in sap.tasks.payload.requests)
+                        foreach (Requests requests in OneCModel.tasks.payload.requests)
                         {
                             temp = temp + "/#" + requests.key + "//@" + requests.name + "//@" + requests.status + "//@" + requests.info;
                         }
                         payload = payload + "|" + temp;
                     }
-                    if (sap.tasks.payload.error_text != null)
+                    if (OneCModel.tasks.payload.error_text != null)
                     {
-                        payload = payload + "|" + sap.tasks.payload.error_text;
+                        payload = payload + "|" + OneCModel.tasks.payload.error_text;
                     }
-                    if (sap.tasks.payload.error_code != null)
+                    if (OneCModel.tasks.payload.error_code != null)
                     {
-                        payload = payload + "|" + sap.tasks.payload.error_code;
+                        payload = payload + "|" + OneCModel.tasks.payload.error_code;
                     }
-                    if (sap.tasks.payload.result != null)
+                    if (OneCModel.tasks.payload.result != null)
                     {
-                        payload = payload + "|" + sap.tasks.payload.result;
+                        payload = payload + "|" + OneCModel.tasks.payload.result;
                     }
-                    if (sap.tasks.payload.response != null)
+                    if (OneCModel.tasks.payload.response != null)
                     {
-                        payload = payload + "|" + sap.tasks.payload.response;
+                        payload = payload + "|" + OneCModel.tasks.payload.response;
                     }
-                    if (sap.tasks.payload.text != null)
+                    if (OneCModel.tasks.payload.text != null)
                     {
-                        payload = payload + "|" + sap.tasks.payload.text;
+                        payload = payload + "|" + OneCModel.tasks.payload.text;
                     }
-                    if (sap.tasks.payload.doc_types != null)
+                    if (OneCModel.tasks.payload.doc_types != null)
                     {
                         temp = "";
-                        foreach (var i in sap.tasks.payload.doc_types)
+                        foreach (var i in OneCModel.tasks.payload.doc_types)
                         {
                             temp = temp + ";" + i;
                         }
                         payload = payload + "|" + temp;
                     }
-                    // if (sap.tasks.payload.valid != null)
+                    // if (OneCModel.tasks.payload.valid != null)
                     // {
-                    //     payload = payload + "|" + sap.tasks.payload.valid;
+                    //     payload = payload + "|" + OneCModel.tasks.payload.valid;
                     // }
-                    if (sap.tasks.payload.url != null)
+                    if (OneCModel.tasks.payload.url != null)
                     {
-                        payload = payload + "|" + sap.tasks.payload.url;
+                        payload = payload + "|" + OneCModel.tasks.payload.url;
                         //save file to postgresql
 
 
-                        saveToDB(sap.tasks.payload.url, sap.tasks.task_id);
+                        saveToDB(OneCModel.tasks.payload.url, OneCModel.tasks.task_id);
                     }
                     
                     myCommand.Parameters.AddWithValue("@userid", "defoult");
-                    myCommand.Parameters.AddWithValue("@taskid", sap.tasks.task_id);
-                    myCommand.Parameters.AddWithValue("@completed", sap.tasks.completed);
+                    myCommand.Parameters.AddWithValue("@taskid", OneCModel.tasks.task_id);
+                    myCommand.Parameters.AddWithValue("@completed", OneCModel.tasks.completed);
                     myCommand.Parameters.AddWithValue("@taskbody", "defoult");
-                    myCommand.Parameters.AddWithValue("@job_status", "fromSap");
+                    myCommand.Parameters.AddWithValue("@job_status", "fromOneCModel");
                     myCommand.Parameters.AddWithValue("@taskresult", payload);
                     myCommand.Parameters.AddWithValue("@dateofcreating", DateTime.Now);
+                    myCommand.Parameters.AddWithValue("@lastupdate", DateTime.Now);
+                    myCommand.Parameters.AddWithValue("@datecamefrom", "1C");
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();

@@ -29,8 +29,8 @@ namespace RestService.Controllers
         {
             string temp = "";
             string payload = "";
-            string query = @"insert into sap_results(userid, taskid, completed,job_status, taskbody, taskresult, dateofcreating) 
-                                  VALUES (@userid, @taskid, @completed,@job_status, @taskbody, @taskresult, @dateofcreating)";
+            string query = @"insert into sap_results(userid, taskid, completed,job_status, task_type, taskresult, dateofcreating, datasource, lastupdate) 
+                                  VALUES (@userid, @taskid, @completed,@job_status, @task_type, @taskresult, @dateofcreating, @datasource, @lastupdate)";
 
             DataTable table = new DataTable();
             string sqlDataSource = _configuration.GetConnectionString("DBConnect");
@@ -104,14 +104,17 @@ namespace RestService.Controllers
 
                         saveToDB(sap.tasks.payload.url, sap.tasks.task_id);
                     }
-                    
-                    myCommand.Parameters.AddWithValue("@userid", "defoult");
+
+                    string[] queueData = GetQueueData(sap.tasks.task_id);
+                    myCommand.Parameters.AddWithValue("@userid", queueData[0]);
                     myCommand.Parameters.AddWithValue("@taskid", sap.tasks.task_id);
                     myCommand.Parameters.AddWithValue("@completed", sap.tasks.completed);
-                    myCommand.Parameters.AddWithValue("@taskbody", "defoult");
+                    myCommand.Parameters.AddWithValue("@task_type", queueData[1]);
+                    myCommand.Parameters.AddWithValue("@datasource", queueData[2]);
                     myCommand.Parameters.AddWithValue("@job_status", "fromSap");
                     myCommand.Parameters.AddWithValue("@taskresult", payload);
                     myCommand.Parameters.AddWithValue("@dateofcreating", DateTime.Now);
+                    myCommand.Parameters.AddWithValue("@lastupdate", DateTime.Now);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
@@ -122,11 +125,43 @@ namespace RestService.Controllers
 
 
         }
+
+        public string[] GetQueueData(string taskid)
+        {
+            string[] arr = new[] {"test", "test", "test"};
+            if (taskid.Contains("TEST"))
+            {
+                return arr;
+            }
+            var cs = _configuration.GetConnectionString("DBConnect");
+            using var con = new NpgsqlConnection(cs);
+            NpgsqlDataReader myReader;
+            DataTable table = new DataTable();
+    
+
+            con.Open();
+            using (NpgsqlCommand cmdUpload = new NpgsqlCommand())
+            {
+               
+                cmdUpload.CommandText = "select userid, task_type,datasource from queue where taskid =@taskid";
+                
+                cmdUpload.Parameters.AddWithValue("@taskid", taskid);
+                cmdUpload.Connection = con;
+                myReader = cmdUpload.ExecuteReader();
+                table.Load(myReader);
+                con.Close();
+            }
+            string userid = Convert.ToString( table.Rows[0]["userid"]);
+            string task_type = Convert.ToString( table.Rows[0]["task_type"]);
+            string datasource = Convert.ToString( table.Rows[0]["datasource"]);
+            string[] arrAns = new[] {userid, task_type, datasource};
+            return arrAns;
+        }
         public bool saveToDB(string url, string taskid)
         {
             WebClient myWebClient = new WebClient();
             byte[] bytes = myWebClient.DownloadData(url);
-
+            
             var cs = _configuration.GetConnectionString("DBConnect");
             using var con = new NpgsqlConnection(cs);
             con.Open();
@@ -150,3 +185,5 @@ namespace RestService.Controllers
         }
     }
 }
+
+

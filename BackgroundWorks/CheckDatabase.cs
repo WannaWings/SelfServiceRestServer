@@ -61,18 +61,19 @@ namespace RestService.BackgroundWorks
                     for (int i = 0; i < table.Rows.Count; i++)
                     {
                         string taskid = table.Rows[i]["taskid"].ToString();
+                        string task_type = table.Rows[i]["task_type"].ToString();
+                        string userid = table.Rows[i]["userid"].ToString();
                         string taskbodyString = table.Rows[i]["taskbody"].ToString();
                         string[] taskbodyItems = taskbodyString.Split(',');
-                        string flag = Convert.ToString(taskbodyItems[2]);
                         var options=new JsonSerializerOptions { WriteIndented = true };
-                        string phoneNumber = taskbodyItems[3];
+                        string phoneNumber = taskbodyItems[0];
                         string urlPath;
                         string jsonString = "";
-                        switch (flag)
+                        switch (task_type)
                         {
                             //SalarySheet_PeroidsListRequest
                             case "Расчетный лист":
-                                urlPath = "/RESTAdapter/Portal/SalarySheet_PeroidsListRequest";
+                                urlPath = "/Portal/SalarySheet_PeroidsListRequest";
                                 var SapGetModel = new SapGetModel
                                 {
                                     configuration = "<config_name>",
@@ -132,8 +133,8 @@ namespace RestService.BackgroundWorks
                                 urlPath = "/OTP_Out";
                                 var sendSMSCode = new SendSMSCode
                                 {
-                                    phone = taskbodyItems[3],
-                                    message = taskbodyItems[4]
+                                    phone = taskbodyItems[0],
+                                    message = taskbodyItems[1]
                                 };
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
@@ -159,7 +160,7 @@ namespace RestService.BackgroundWorks
                                                 payload = new SalarySheetUrlPayloads
                                                 {
                                                     phone = phoneNumber,
-                                                    period = taskbodyItems[4]
+                                                    period = taskbodyItems[1]
                                                 }
                                             }
                                         }
@@ -187,8 +188,7 @@ namespace RestService.BackgroundWorks
                                                 task_type = "get_active_requests",
                                                 payload = new SalarySheetUrlPayloads
                                                 {
-                                                    phone = phoneNumber,
-                                                    period = taskbodyItems[4]
+                                                    phone = phoneNumber
                                                 }
                                             }
                                         }
@@ -217,7 +217,7 @@ namespace RestService.BackgroundWorks
                                                 payload = new CancelRequestModelPayloads
                                                 {
                                                     phone = phoneNumber,
-                                                    key = taskbodyItems[4]
+                                                    key = taskbodyItems[1]
                                                 }
                                             }
                                         }
@@ -247,7 +247,7 @@ namespace RestService.BackgroundWorks
                                                 payload = new RestOfVacationRequestModelPayloads
                                                 {
                                                     phone = phoneNumber,
-                                                    date = taskbodyItems[4]
+                                                    date = taskbodyItems[1]
                                                 }
                                             }
                                         }
@@ -301,7 +301,7 @@ namespace RestService.BackgroundWorks
                                         {
                                             task_id = taskid,
                                             state = "new",
-                                            task_type = taskbodyItems[5],
+                                            task_type = taskbodyItems[2],
                                             payload = new Payloads
                                             {
                                                 phone = phoneNumber
@@ -334,9 +334,9 @@ namespace RestService.BackgroundWorks
                                             payload = new OrderNote_2NDFLRequestModelPayloads
                                             {
                                                 phone = phoneNumber,
-                                                period = taskbodyItems[4],
-                                                count = taskbodyItems[5],
-                                                location = taskbodyItems[6]
+                                                period = taskbodyItems[1],
+                                                count = taskbodyItems[2],
+                                                location = taskbodyItems[3]
                                             }
                                         }
                                     }
@@ -365,7 +365,7 @@ namespace RestService.BackgroundWorks
                                                 payload = new OrderNote_PlaceListRequestPayloads
                                                 {
                                                     phone = phoneNumber,
-                                                    doc_type = taskbodyItems[5]
+                                                    doc_type = taskbodyItems[2]
                                                 }
                                             }
                                         }
@@ -394,11 +394,11 @@ namespace RestService.BackgroundWorks
                                                 payload = new OrderNote_FromJobRequestModelPayloads
                                                 {
                                                     phone = phoneNumber,
-                                                    count=taskbodyItems[4],
-                                                    location=taskbodyItems[5],
-                                                    vacation=Convert.ToBoolean(taskbodyItems[6]),
-                                                    vacation_period=taskbodyItems[7],
-                                                    salary=Convert.ToBoolean(taskbodyItems[6]),
+                                                    count=taskbodyItems[1],
+                                                    location=taskbodyItems[2],
+                                                    vacation=Convert.ToBoolean(taskbodyItems[3]),
+                                                    vacation_period=taskbodyItems[4],
+                                                    salary=Convert.ToBoolean(taskbodyItems[5]),
                                                 }
                                             }
                                         }
@@ -455,9 +455,9 @@ namespace RestService.BackgroundWorks
                                             payload = new OrderNote_2NDFLRequestModelPayloads
                                             {
                                                 phone = phoneNumber,
-                                                period = taskbodyItems[4],
-                                                count = taskbodyItems[5],
-                                                location = taskbodyItems[6]
+                                                period = taskbodyItems[1],
+                                                count = taskbodyItems[2],
+                                                location = taskbodyItems[3]
                                             }
                                         }
                                     }
@@ -486,9 +486,9 @@ namespace RestService.BackgroundWorks
                                             payload = new OrderNote_2NDFLRequestModelPayloads
                                             {
                                                 phone = phoneNumber,
-                                                period = taskbodyItems[4],
-                                                count = taskbodyItems[5],
-                                                location = taskbodyItems[6]
+                                                period = taskbodyItems[1],
+                                                count = taskbodyItems[2],
+                                                location = taskbodyItems[3]
                                             }
                                         }
                                     }
@@ -519,9 +519,9 @@ namespace RestService.BackgroundWorks
                                             payload = new OrderNote_WorkBookCopyRequestTasksPayloads
                                             {
                                                 phone = phoneNumber,
-                                                count = taskbodyItems[5],
-                                                location = taskbodyItems[6],
-                                                goal = taskbodyItems[4]
+                                                goal = taskbodyItems[1],
+                                                count = taskbodyItems[2],
+                                                location = taskbodyItems[3]
 
                                             }
                                         }
@@ -620,6 +620,8 @@ namespace RestService.BackgroundWorks
                     response.EnsureSuccessStatusCode();
                     
                     var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    logger.LogInformation($"RESPONSE BODY: { responseBody }");
+                    
                 }
             }
             catch (HttpRequestException e)
