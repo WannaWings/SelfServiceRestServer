@@ -33,7 +33,8 @@ namespace RestService.Models
         public List<Requests> requests { get; set; }
         public string response { get; set; }
         public string text { get; set; }
-        public string phone { get; set; }
+        public string task_internal_id { get; set; }
+        public string[] phones { get; set; }
         public string error_code { get; set; }
         public string error_text { get; set; }
     }
@@ -43,10 +44,13 @@ namespace RestService.Models
         public bool completed { get; set; }
         public string task_id { get; set; }
         public Payload payload { get; set; }
+        
+        public string task_type { get; set; }
     }
 
     public class SapReceive
     {
         public Tasks tasks { get; set; }
+        public Tasks task { get; set; }
     }
 }

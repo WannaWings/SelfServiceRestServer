@@ -14,7 +14,8 @@ using Newtonsoft.Json.Serialization;
 using RestService.BackgroundWorks;
 using RestService.Helpers;
 using Microsoft.AspNetCore.Authentication;
-
+// using NLog;
+// using NLog.Web;
 using RestService.Services;
 
 namespace RestService
@@ -27,10 +28,16 @@ namespace RestService
         }
 
         public IConfiguration Configuration { get; }
+        
+        // private Logger _logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // MappedDiagnosticsLogicalContext.Set("User", "undefined");
+            // MappedDiagnosticsLogicalContext.Set("Sessionid", "undefined");
+            // _logger.Trace("startup Rest server");
             services.AddSingleton<ICheckDatabase, CheckDatabase>();
 
 

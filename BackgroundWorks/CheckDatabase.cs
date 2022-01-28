@@ -11,8 +11,10 @@ using RestService.Models;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Data;
+using System.Net;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
+using Task = System.Threading.Tasks.Task;
 
 namespace RestService.BackgroundWorks
 {
@@ -69,8 +71,142 @@ namespace RestService.BackgroundWorks
                         string phoneNumber = taskbodyItems[0];
                         string urlPath;
                         string jsonString = "";
+                        string body;
+                       // body = null;
+                        List<ResultFrom1c> myDeserializedClass;
+                        //myDeserializedClass = new List<ResultFrom1c>();
                         switch (task_type)
                         {
+                            //1C requests 
+                            case "salarySheet":
+                                var GetModel1C = new SapGetModel1C()
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+                                    
+                                    tasks = new List<GetTasks1C>
+                                    {
+                                    
+                                        new GetTasks1C()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "get_available_salary_periods",
+                                            payload = new Payloads1C
+                                            {
+                                                snils = "",
+                                                phone = phoneNumber,
+                                                email = "n.rozhnova@metalloinvest.com",
+                                                date = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                                            }
+                                        }
+                                    }
+                                };
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(GetModel1C, options);
+                                body =  await Send1CRequestAsync(jsonString);
+                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
+                                Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
+                                break;
+                            
+                            case "get_employee_data":
+                                var getEmployeeData1C = new SapGetModel1C()
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+                                    
+                                    tasks = new List<GetTasks1C>
+                                    {
+                                    
+                                        new GetTasks1C()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "get_employee_data",
+                                            payload = new Payloads1C
+                                            {
+                                                snils = "",
+                                                phone = phoneNumber,
+                                                email = "n.rozhnova@metalloinvest.com",
+                                                date = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                                            }
+                                        }
+                                    }
+                                };
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(getEmployeeData1C, options);
+                                body =  await Send1CRequestAsync(jsonString);
+                                myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
+                                Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
+                                break;
+                            case "available_vacations1C":
+                                var availableVacations1C = new SapGetModel1C()
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+                                    
+                                    tasks = new List<GetTasks1C>
+                                    {
+                                    
+                                        new GetTasks1C()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "available_vacations",
+                                            payload = new Payloads1C
+                                            {
+                                                snils = "",
+                                                phone = phoneNumber,
+                                                email = "n.rozhnova@metalloinvest.com",
+                                                date = taskbodyItems[1]
+                                            }
+                                        }
+                                    }
+                                };
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(availableVacations1C, options);
+                                body =  await Send1CRequestAsync(jsonString);
+                                myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
+                                Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
+                                break;
+                            case "salarySeetFile":
+                                var salartSheetFile = new SalartSheetFile()
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+                                    
+                                    tasks = new List<Tasks1CSalaryFile>
+                                    {
+                                    
+                                        new Tasks1CSalaryFile()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "get_salary_sheet",
+                                            payload = new Payloads1CSalaryFile
+                                            {
+                                                period = taskbodyItems[1],
+                                                snils = "",
+                                                phone = phoneNumber,
+                                                email = "n.rozhnova@metalloinvest.com",
+                                                date = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                                            }
+                                        }
+                                    }
+                                };
+                                options = new JsonSerializerOptions { WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(salartSheetFile, options);
+                                body = await Send1CRequestAsync(jsonString);
+                                myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
+                                Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
+                                break;
+                                
+                                
+                            
                             //SalarySheet_PeroidsListRequest
                             case "Расчетный лист":
                                 urlPath = "/Portal/SalarySheet_PeroidsListRequest";
@@ -130,7 +266,7 @@ namespace RestService.BackgroundWorks
                                 break;
                             //OTP_Out
                             case "sendSMSCode":
-                                urlPath = "/OTP_Out";
+                                urlPath = "/Portal/OTP_Out";
                                 var sendSMSCode = new SendSMSCode
                                 {
                                     phone = taskbodyItems[0],
@@ -628,6 +764,134 @@ namespace RestService.BackgroundWorks
             {
                 logger.LogInformation($"Error: {e.Message }");
             }
+        }
+        private async Task<string> Send1CRequestAsync(string jsonString)
+        {
+            try
+            {
+                string loginPass = _configuration.GetConnectionString("1CLoginPass");
+                string url =  _configuration.GetConnectionString("1CURL");
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue(
+                            "Basic", Convert.ToBase64String(
+                                System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                    loginPass)));
+                    var request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Post,
+                        RequestUri = new Uri(url),
+                        Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                    };
+                    
+                    var response = await client.SendAsync(request).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
+                    
+                    var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    logger.LogInformation($"RESPONSE BODY: { responseBody }");
+                    return responseBody;
+                    
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                logger.LogInformation($"Error: {e.Message }");
+            }
+
+            return "Error";
+        }
+
+        private async Task<bool> Add1CResultToDB(ResultFrom1c result, string userId, string task_type)
+        {
+            string temp = "";
+            string payload = "";
+            string query = @"insert into sap_results(userid, taskid, completed,job_status, task_type, taskresult, dateofcreating, datasource, lastupdate) 
+                                  VALUES (@userid, @taskid, @completed,@job_status, @task_type, @taskresult, @dateofcreating, @datasource, @lastupdate)";
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configuration.GetConnectionString("DBConnect");
+            NpgsqlDataReader myReader;
+            using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (NpgsqlCommand myCommand = new NpgsqlCommand(query, myCon))
+                {
+                    
+                    if (result.payload.result != null)
+                    {
+                        payload = payload + "|" + result.payload.result;
+                    }
+                    if (result.payload.text != null)
+                    {
+                        payload = payload + "|" + result.payload.text;
+                    }
+                    if (result.payload.periods != null)
+                    {
+                        foreach (Period1CRecieve period in result.payload.periods)
+                        {
+                            temp = temp + "/@" + period.key + "/#" + period.value;
+                        }
+                        payload = payload + "|" + temp;
+                    }
+                    
+                    if (result.payload.error_text != null)
+                    {
+                        payload = payload + "|" + result.payload.error_text;
+                    }
+                    if (result.payload.error_code != null)
+                    {
+                        payload = payload + "|" + result.payload.error_code;
+                    }
+                    
+                    if (result.payload.file != null)
+                    {
+                        payload = payload + "|" + "File Saved";
+                        //save file to postgresql
+
+
+                        saveToDB(result.payload.file, result.task_id);
+                    }
+
+                    myCommand.Parameters.AddWithValue("@userid", userId);
+                    myCommand.Parameters.AddWithValue("@taskid", result.task_id);
+                    myCommand.Parameters.AddWithValue("@completed", result.completed);
+                    myCommand.Parameters.AddWithValue("@task_type", task_type);
+                    myCommand.Parameters.AddWithValue("@datasource", "1C");
+                    myCommand.Parameters.AddWithValue("@job_status", "fromSap");
+                    myCommand.Parameters.AddWithValue("@taskresult", payload);
+                    myCommand.Parameters.AddWithValue("@dateofcreating", DateTime.Now);
+                    myCommand.Parameters.AddWithValue("@lastupdate", DateTime.Now);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+
+            return true;
+        }
+        public bool saveToDB(string file, string taskid)
+        {
+            byte[] bytes = Convert.FromBase64String(file);
+            
+            var cs = _configuration.GetConnectionString("DBConnect");
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+            
+            using (NpgsqlCommand cmdUpload = new NpgsqlCommand())
+            {
+                cmdUpload.CommandText = "insert into saved_files(taskid, file, status,createtime) values(@taskid, @file,@status,@createtime) ";
+                cmdUpload.Parameters.AddWithValue("@taskid", taskid);
+                cmdUpload.Parameters.AddWithValue("@file", bytes);
+                cmdUpload.Parameters.AddWithValue("@status", "created");
+                cmdUpload.Parameters.AddWithValue("@createtime", DateTime.Now);
+                cmdUpload.Connection = con;
+                cmdUpload.ExecuteNonQuery();
+                con.Close();
+            }
+            return true;
+
         }
     }
 }

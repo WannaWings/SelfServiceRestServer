@@ -79,3 +79,6 @@ C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\
 C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.dll
 C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.pdb
 C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\obj\Release\netcoreapp3.1\RestService.genruntimeconfig.cache
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\appsettingsDev.json
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\appsettingsProd.json
+C:\Users\m.valiev\source\repos\RestServiceFinal - DEV\bin\Release\netcoreapp3.1\appsettingsTest.json
