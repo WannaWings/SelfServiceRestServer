@@ -12,6 +12,8 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Data;
 using System.Net;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using Task = System.Threading.Tasks.Task;
@@ -77,6 +79,45 @@ namespace RestService.BackgroundWorks
                         //myDeserializedClass = new List<ResultFrom1c>();
                         switch (task_type)
                         {
+                        //survey
+                        //https://sappo1ci.sap.metinvest.com:50001/RestAdapter/Portal/SurveyResponce
+
+                            case "send_survey_results_test":
+                                taskbodyItems = taskbodyString.Split('|');
+                                string payloadSurvey = taskbodyItems[2].Replace("\"text\":\"\"", "");
+                                List<QuestionsSurveyModel> questionsSurveyModels= JsonConvert.DeserializeObject<List<QuestionsSurveyModel>>(payloadSurvey);
+
+                                urlPath = "/Portal/SurveyResponce";
+                                var surveyAnswerSend = new SurveyAnswerSendModel
+                                {
+                                    configuration = "MIDev",
+                                    queue = "survey_result",
+
+                                    tasks = new List<SurveyAnswerSendModelTasks>
+                                    {
+
+                                        new SurveyAnswerSendModelTasks()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "send_survey_results",
+                                            payload = new SurveyAnswerSendModelPayloads
+                                            {
+                                                phone = taskbodyItems[0],
+                                                survey_id = taskbodyItems[1],
+                                                questions = questionsSurveyModels
+                                            }
+                                        }
+                                    }
+                                };
+                                //serialize json response for sap 
+                                options = new JsonSerializerOptions {     Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+                                    WriteIndented = true };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(surveyAnswerSend, options);
+                                await SendWebRequestAsync(urlPath, jsonString);
+                                break;
+                        
+                        
                             //1C requests 
                             case "salarySheet":
                                 var GetModel1C = new SapGetModel1C()
@@ -106,11 +147,11 @@ namespace RestService.BackgroundWorks
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(GetModel1C, options);
                                 body =  await Send1CRequestAsync(jsonString);
                                  myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
-                                Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
                             
-                            case "get_employee_data":
+                            case "get_employee_data1С":
                                 var getEmployeeData1C = new SapGetModel1C()
                                 {
                                     configuration = "<config_name>",
@@ -138,7 +179,7 @@ namespace RestService.BackgroundWorks
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(getEmployeeData1C, options);
                                 body =  await Send1CRequestAsync(jsonString);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
-                                Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
                             case "available_vacations1C":
@@ -169,7 +210,7 @@ namespace RestService.BackgroundWorks
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(availableVacations1C, options);
                                 body =  await Send1CRequestAsync(jsonString);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
-                                Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
                             case "salarySeetFile":
@@ -201,7 +242,7 @@ namespace RestService.BackgroundWorks
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(salartSheetFile, options);
                                 body = await Send1CRequestAsync(jsonString);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
-                                Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
                                 

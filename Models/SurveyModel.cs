@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace RestService.Models
@@ -24,11 +25,13 @@ namespace RestService.Models
         public List<string> phones { get; set; }
 
         [JsonProperty("task_internal_id")]
-        public string TaskInternalId { get; set; }
+        public string task_internal_id { get; set; }
         public string survey_id { get; set; }
-        public string start_date { get; set; }
+        public string survey_key { get; set; }
+        public string  start_date { get; set; }
         public string end_date { get; set; }
         public string title { get; set; }
+        public string status { get; set; }
         public List<Question> questions { get; set; }
     }
 
