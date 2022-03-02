@@ -82,7 +82,7 @@ namespace RestService.BackgroundWorks
                         //survey
                         //https://sappo1ci.sap.metinvest.com:50001/RestAdapter/Portal/SurveyResponce
 
-                            case "send_survey_results_test":
+                            case "send_survey_results":
                                 taskbodyItems = taskbodyString.Split('|');
                                 string payloadSurvey = taskbodyItems[2].Replace("\"text\":\"\"", "");
                                 List<QuestionsSurveyModel> questionsSurveyModels= JsonConvert.DeserializeObject<List<QuestionsSurveyModel>>(payloadSurvey);
