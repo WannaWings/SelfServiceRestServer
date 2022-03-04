@@ -81,44 +81,7 @@ namespace RestService.BackgroundWorks
                         {
                         //survey
                         //https://sappo1ci.sap.metinvest.com:50001/RestAdapter/Portal/SurveyResponce
-
-                            case "send_survey_results":
-                                taskbodyItems = taskbodyString.Split('|');
-                                string payloadSurvey = taskbodyItems[2].Replace("\"text\":\"\"", "");
-                                List<QuestionsSurveyModel> questionsSurveyModels= JsonConvert.DeserializeObject<List<QuestionsSurveyModel>>(payloadSurvey);
-
-                                urlPath = "/Portal/SurveyResponce";
-                                var surveyAnswerSend = new SurveyAnswerSendModel
-                                {
-                                    configuration = "MIDev",
-                                    queue = "survey_result",
-
-                                    tasks = new List<SurveyAnswerSendModelTasks>
-                                    {
-
-                                        new SurveyAnswerSendModelTasks()
-                                        {
-                                            task_id = taskid,
-                                            state = "new",
-                                            task_type = "send_survey_results",
-                                            payload = new SurveyAnswerSendModelPayloads
-                                            {
-                                                phone = taskbodyItems[0],
-                                                survey_id = taskbodyItems[1],
-                                                questions = questionsSurveyModels
-                                            }
-                                        }
-                                    }
-                                };
-                                //serialize json response for sap 
-                                options = new JsonSerializerOptions {     Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
-                                    WriteIndented = true };
-                                jsonString = System.Text.Json.JsonSerializer.Serialize(surveyAnswerSend, options);
-                                await SendWebRequestAsync(urlPath, jsonString);
-                                break;
-                        
-                        
-                            //1C requests 
+                        //1C requests 
                             case "salarySheet":
                                 var GetModel1C = new SapGetModel1C()
                                 {
@@ -137,7 +100,7 @@ namespace RestService.BackgroundWorks
                                             {
                                                 snils = "",
                                                 phone = phoneNumber,
-                                                email = "n.rozhnova@metalloinvest.com",
+                                                email = taskbodyItems[1],
                                                 date = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
                                             }
                                         }
@@ -150,38 +113,72 @@ namespace RestService.BackgroundWorks
                                 await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
-                            
-                            case "get_employee_data1С":
-                                var getEmployeeData1C = new SapGetModel1C()
+                            case "check_employee_phone_1c":
+                            {
+                                var GetModelCheck1C = new SapGetModel1C()
                                 {
                                     configuration = "<config_name>",
                                     queue = "<queue_name>",
-                                    
+
                                     tasks = new List<GetTasks1C>
                                     {
-                                    
+
                                         new GetTasks1C()
                                         {
                                             task_id = taskid,
                                             state = "new",
-                                            task_type = "get_employee_data",
+                                            task_type = "check_employee",
                                             payload = new Payloads1C
                                             {
                                                 snils = "",
-                                                phone = phoneNumber,
-                                                email = "n.rozhnova@metalloinvest.com",
+                                                phone = taskbodyItems[0],
+                                                email = "",
                                                 date = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
                                             }
                                         }
                                     }
                                 };
-                                options = new JsonSerializerOptions { WriteIndented = true };
-                                jsonString = System.Text.Json.JsonSerializer.Serialize(getEmployeeData1C, options);
-                                body =  await Send1CRequestAsync(jsonString);
+                                options = new JsonSerializerOptions {WriteIndented = true};
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(GetModelCheck1C, options);
+                                body = await Send1CRequestAsync(jsonString);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
-                                await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                await Add1CResultToDB(myDeserializedClass[0], userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
+                            };
+                            case "get_employee_data1С":
+                        {
+                            var getEmployeeData1C = new SapGetModel1C()
+                            {
+                                configuration = "<config_name>",
+                                queue = "<queue_name>",
+
+                                tasks = new List<GetTasks1C>
+                                {
+
+                                    new GetTasks1C()
+                                    {
+                                        task_id = taskid,
+                                        state = "new",
+                                        task_type = "get_employee_data",
+                                        payload = new Payloads1C
+                                        {
+                                            snils = "",
+                                            phone = phoneNumber,
+                                            email = taskbodyItems[1],
+                                            date = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                                        }
+                                    }
+                                }
+                            };
+                            options = new JsonSerializerOptions {WriteIndented = true};
+                            jsonString = System.Text.Json.JsonSerializer.Serialize(getEmployeeData1C, options);
+                            body = await Send1CRequestAsync(jsonString);
+                            myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
+                            await Add1CResultToDB(myDeserializedClass[0], userid, task_type);
+                            //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
+                            break;
+                        }
                             case "available_vacations1C":
                                 var availableVacations1C = new SapGetModel1C()
                                 {
@@ -200,7 +197,7 @@ namespace RestService.BackgroundWorks
                                             {
                                                 snils = "",
                                                 phone = phoneNumber,
-                                                email = "n.rozhnova@metalloinvest.com",
+                                                email = taskbodyItems[2],
                                                 date = taskbodyItems[1]
                                             }
                                         }
@@ -232,7 +229,7 @@ namespace RestService.BackgroundWorks
                                                 period = taskbodyItems[1],
                                                 snils = "",
                                                 phone = phoneNumber,
-                                                email = "n.rozhnova@metalloinvest.com",
+                                                email = taskbodyItems[2],
                                                 date = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
                                             }
                                         }
@@ -247,9 +244,49 @@ namespace RestService.BackgroundWorks
                                 break;
                                 
                                 
+                            //SAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAPSAP
+                        
+                         //surveySAP
+                            case "send_survey_results":
+                                taskbodyItems = taskbodyString.Split('|');
+                                string payloadSurvey = taskbodyItems[2].Replace("\"text\":\"\"", "");
+                                List<QuestionsSurveyModel> questionsSurveyModels= JsonConvert.DeserializeObject<List<QuestionsSurveyModel>>(payloadSurvey);
+                                urlPath = "http://sappo2ci.sap.metinvest.com:50000/RESTAdapter/Portal/SurveyResponce";
+                                var surveyAnswerSend = new SurveyAnswerSendModel
+                                {
+                                    configuration = "MIDev",
+                                    queue = "survey_result",
+                                    tasks = new List<SurveyAnswerSendModelTasks>
+                                    {
+
+                                        new SurveyAnswerSendModelTasks()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "send_survey_results",
+                                            payload = new SurveyAnswerSendModelPayloads
+                                            {
+                                                phone = taskbodyItems[0],
+                                                survey_id = taskbodyItems[1],
+                                                questions = questionsSurveyModels
+                                            }
+                                        }
+                                    }
+                                };
+                                //serialize json response for sap 
+                                //options = new JsonSerializerOptions { WriteIndented = true };
+                                options = new JsonSerializerOptions
+                                {
+                                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+                                    WriteIndented = true
+                                };
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(surveyAnswerSend, options);
+                                await SendWebRequestSurveyAsync(urlPath, jsonString);
+                                break;
                             
-                            //SalarySheet_PeroidsListRequest
-                            case "Расчетный лист":
+                            
+                        //SalarySheet_PeroidsListRequest SAP
+                            case "Расчетный лист":{
                                 urlPath = "/Portal/SalarySheet_PeroidsListRequest";
                                 var SapGetModel = new SapGetModel
                                 {
@@ -277,9 +314,10 @@ namespace RestService.BackgroundWorks
                                 
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
+                            }
                             //AvailableDocTypesRequest
                             case "sendSMS":
-                                urlPath = "/Portal/AvailableDocTypesRequest";
+                            {urlPath = "/Portal/AvailableDocTypesRequest";
                                 var verifySMSModel = new SapGetModel
                                 {
                                     configuration = "<config_name>",
@@ -301,110 +339,121 @@ namespace RestService.BackgroundWorks
                                     }
                                 };
                                 //serialize json response for sap 
-                                options = new JsonSerializerOptions { WriteIndented = true };
+                                options = new JsonSerializerOptions {WriteIndented = true};
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(verifySMSModel, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
-                            //OTP_Out
+                            }
+                            
+                        //OTP_Out
                             case "sendSMSCode":
-                                urlPath = "/Portal/OTP_Out";
-                                var sendSMSCode = new SendSMSCode
-                                {
-                                    phone = taskbodyItems[0],
-                                    message = taskbodyItems[1]
-                                };
-                                //serialize json response for sap 
-                                options = new JsonSerializerOptions { WriteIndented = true };
-                                jsonString = System.Text.Json.JsonSerializer.Serialize(sendSMSCode, options);
-                                await SendWebRequestAsync(urlPath, jsonString);
-                                break;
-                            //SalarySheet_LinkRequest
+                        {urlPath = "/Portal/OTP_Out";
+                            var sendSMSCode = new SendSMSCode
+                            {
+                                phone = taskbodyItems[0],
+                                message = taskbodyItems[1]
+                            };
+                            //serialize json response for sap 
+                            options = new JsonSerializerOptions {WriteIndented = true};
+                            jsonString = System.Text.Json.JsonSerializer.Serialize(sendSMSCode, options);
+                            await SendWebRequestAsync(urlPath, jsonString);
+                            break;
+                        }
+                            
+                        //SalarySheet_LinkRequest
                             case "Расчетный лист отрезок":
-                                urlPath = "/Portal/SalarySheet_LinkRequest";
-                                var SapGetSalarysheetUrl = new SapGetSalarysheetUrl()
+                        {
+                        
+                            urlPath = "/Portal/SalarySheet_LinkRequest";
+                            var SapGetSalarysheetUrl = new SapGetSalarysheetUrl()
+                            {
+                                configuration = "<config_name>",
+                                queue = "<queue_name>",
+
+                                tasks = new List<SalarySheetUrlGetTasks>
+                                {
+
+                                    new SalarySheetUrlGetTasks()
                                     {
-                                        configuration = "<config_name>",
-                                        queue = "<queue_name>",
-
-                                        tasks = new List<SalarySheetUrlGetTasks>
+                                        task_id = taskid,
+                                        state = "new",
+                                        task_type = "get_available_salary_periods",
+                                        payload = new SalarySheetUrlPayloads
                                         {
-
-                                            new SalarySheetUrlGetTasks()
-                                            {
-                                                task_id = taskid,
-                                                state = "new",
-                                                task_type = "get_available_salary_periods",
-                                                payload = new SalarySheetUrlPayloads
-                                                {
-                                                    phone = phoneNumber,
-                                                    period = taskbodyItems[1]
-                                                }
-                                            }
+                                            phone = phoneNumber,
+                                            period = taskbodyItems[1]
                                         }
-                                    };
-                                    //serialize json response for sap 
-                                    options = new JsonSerializerOptions { WriteIndented = true };
-                                    jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetSalarysheetUrl, options);
-                                    await SendWebRequestAsync(urlPath, jsonString);
-                                break; 
-                            //ActiveOrderNoteRequest
+                                    }
+                                }
+                            };
+                            //serialize json response for sap 
+                            options = new JsonSerializerOptions {WriteIndented = true};
+                            jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetSalarysheetUrl, options);
+                            await SendWebRequestAsync(urlPath, jsonString);
+                            break;
+                        }
+                        //ActiveOrderNoteRequest
                             case "get_active_requests":
+                            {
                                 urlPath = "/Portal/ActiveOrderNoteRequest";
                                 var SapGetActivityRequest = new SapGetSalarysheetUrl()
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+
+                                    tasks = new List<SalarySheetUrlGetTasks>
                                     {
-                                        configuration = "<config_name>",
-                                        queue = "<queue_name>",
 
-                                        tasks = new List<SalarySheetUrlGetTasks>
+                                        new SalarySheetUrlGetTasks()
                                         {
-
-                                            new SalarySheetUrlGetTasks()
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "get_active_requests",
+                                            payload = new SalarySheetUrlPayloads
                                             {
-                                                task_id = taskid,
-                                                state = "new",
-                                                task_type = "get_active_requests",
-                                                payload = new SalarySheetUrlPayloads
-                                                {
-                                                    phone = phoneNumber
-                                                }
+                                                phone = phoneNumber
                                             }
                                         }
-                                    };
-                                    //serialize json response for sap 
-                                    options = new JsonSerializerOptions { WriteIndented = true };
-                                    jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetActivityRequest, options);
-                                    await SendWebRequestAsync(urlPath, jsonString);
+                                    }
+                                };
+                                //serialize json response for sap 
+                                options = new JsonSerializerOptions {WriteIndented = true};
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetActivityRequest, options);
+                                await SendWebRequestAsync(urlPath, jsonString);
                                 break;
+                            }
                             //CancellationDocRequest
                             case "cancel_request":
+                            {
                                 urlPath = "/Portal/CancellationDocRequest";
                                 var cancelRequestModel = new CancelRequestModel()
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+
+                                    tasks = new List<CancelRequestModelTasks>
                                     {
-                                        configuration = "<config_name>",
-                                        queue = "<queue_name>",
 
-                                        tasks = new List<CancelRequestModelTasks>
+                                        new CancelRequestModelTasks()
                                         {
-
-                                            new CancelRequestModelTasks()
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "cancel_request",
+                                            payload = new CancelRequestModelPayloads
                                             {
-                                                task_id = taskid,
-                                                state = "new",
-                                                task_type = "cancel_request",
-                                                payload = new CancelRequestModelPayloads
-                                                {
-                                                    phone = phoneNumber,
-                                                    key = taskbodyItems[1]
-                                                }
+                                                phone = phoneNumber,
+                                                key = taskbodyItems[1]
                                             }
                                         }
-                                    };
-                                    //serialize json response for sap 
-                                    options = new JsonSerializerOptions { WriteIndented = true };
-                                    jsonString = System.Text.Json.JsonSerializer.Serialize(cancelRequestModel, options);
-                                    await SendWebRequestAsync(urlPath, jsonString);
-                                    
-                                    break;
+                                    }
+                                };
+                                //serialize json response for sap 
+                                options = new JsonSerializerOptions {WriteIndented = true};
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(cancelRequestModel, options);
+                                await SendWebRequestAsync(urlPath, jsonString);
+
+                                break;
+                            }
                             //RestOfVacationRequest
                             case "RestOfVacationRequest":
                                 urlPath = "/Portal/RestOfVacationRequest";
@@ -789,7 +838,7 @@ namespace RestService.BackgroundWorks
                     var request = new HttpRequestMessage
                     {
                         Method = HttpMethod.Get,
-                        RequestUri = new Uri(url +  urlPath),
+                        RequestUri = new Uri(url + urlPath),
                         Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
                     };
                     
@@ -806,6 +855,41 @@ namespace RestService.BackgroundWorks
                 logger.LogInformation($"Error: {e.Message }");
             }
         }
+        
+        private async Task SendWebRequestSurveyAsync(string urlPath, string jsonString)
+        {
+            try
+            {
+                string loginPass = _configuration.GetConnectionString("LoginPass");
+                string url =  _configuration.GetConnectionString("SapURL");
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue(
+                            "Basic", Convert.ToBase64String(
+                                System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                    loginPass)));
+                    var request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Get,
+                        RequestUri = new Uri(urlPath),
+                        Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
+                    };
+                    
+                    var response = await client.SendAsync(request).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
+                    
+                    var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    logger.LogInformation($"RESPONSE BODY: { responseBody }");
+                    
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                logger.LogInformation($"Error: {e.Message }");
+            }
+        }
+        
         private async Task<string> Send1CRequestAsync(string jsonString)
         {
             try

@@ -6,8 +6,10 @@ using RestService.Models;
 using System;
 using System.Data;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
+using Task = System.Threading.Tasks.Task;
 
 // using NLog;
 // using NLog.Web;
@@ -31,7 +33,7 @@ namespace RestService.Controllers
         }
         
         [HttpPost]
-        public JsonResult Post(SapReceive sap)
+        public async Task<JsonResult> Post(SapReceive sap)
         {
             // MappedDiagnosticsLogicalContext.Set("User", "undefined");
             // MappedDiagnosticsLogicalContext.Set("Sessionid", "undefined");
@@ -54,53 +56,28 @@ namespace RestService.Controllers
 
                 myCon.Open();
                 
-                string tesk_id = "test";
                     if (sap.task != null)
                     {
-                        if (sap.task.payload.phones != null)
+                        if (sap.task.payload.text != null)
                         {
-                            foreach (string phone in sap.task.payload.phones)
-                            {
-                                temp = temp + ";" + phone;
-
-                            }
-                            payload = payload + "|" + temp;
-                        }
-                    
-                    if (sap.task.payload.text != null)
-                    {
-                        payload = payload + "|" + sap.task.payload.text;
-                    }
-                    if (sap.task.payload.task_internal_id != null)
-                    {
-                        payload = payload + "|" + sap.task.payload.task_internal_id;
-                        tesk_id = sap.task.payload.task_internal_id;
-                    }
-                    
-                        string queryNotifications = @"insert into notifications(task_type, task_uuid, status,result,date, phones) 
-                                      VALUES (@task_type, @task_uuid, @status,@result,@date, @phones)";
-                        using (NpgsqlCommand myCommandNotofications = new NpgsqlCommand(queryNotifications, myCon))
-                        {
-                            //_logger.Trace($"Notification came from SAP: {payload}  ");
-                            //queueData = GetQueueData(sap.tasks.task_id);
-                            string payloads = JsonConvert.SerializeObject(sap.task.payload, 
-                                Newtonsoft.Json.Formatting.None, 
-                                new JsonSerializerSettings { 
-                                    NullValueHandling = NullValueHandling.Ignore
-                                });
-                            myCommandNotofications.Parameters.AddWithValue("@task_type", sap.task.task_type);
-                            myCommandNotofications.Parameters.AddWithValue("@task_uuid", sap.task.payload.task_internal_id);
-                            myCommandNotofications.Parameters.AddWithValue("@status", "true");
-                            myCommandNotofications.Parameters.AddWithValue("@result", payload);
-                            myCommandNotofications.Parameters.AddWithValue("@phones", sap.task.payload.phones);
-                            myCommandNotofications.Parameters.AddWithValue("@date", DateTime.Now);
-                            myReader = myCommandNotofications.ExecuteReader();
-                            table.Load(myReader);
-                            myReader.Close();
+                            
+                                if (sap.task.payload.phones != null)
+                                {
+                                    string task_id = "taskId";
+                                    if (sap.task.payload.task_internal_id != null)
+                                    {
+                                        task_id = sap.task.payload.task_internal_id;
+                                    }
+                                    foreach (string phone in sap.task.payload.phones)
+                                    {
+                                        await AddToNotifications(sap, phone, sqlDataSource);
+                                    }
+                                }
                             myCon.Close();
                             return new JsonResult("Added succesfully =)");
+
                         }
-                   
+                        
                     
                     }
                 
@@ -252,6 +229,31 @@ namespace RestService.Controllers
             }
             return true;
 
+        }
+
+        public static async Task AddToNotifications(SapReceive sap,string phone, string _dbConn)
+        { 
+            using (NpgsqlConnection myCon = new NpgsqlConnection(_dbConn))
+            {
+                string task_id = "taskId";
+                if (sap.task.payload.task_internal_id != null)
+                {
+                    task_id = sap.task.payload.task_internal_id;
+                }
+                myCon.Open();
+                string queryNotifications = @"insert into notifications(task_type, task_uuid, status,result,date, phones) 
+                                        VALUES (@task_type, @task_uuid, @status,@result,@date, @phones)";
+                NpgsqlCommand myCommandNotofications =
+                    new NpgsqlCommand(queryNotifications, myCon);
+                myCommandNotofications.Parameters.AddWithValue("@task_type", sap.task.task_type);
+                myCommandNotofications.Parameters.AddWithValue("@task_uuid", task_id);
+                myCommandNotofications.Parameters.AddWithValue("@status", "true");
+                myCommandNotofications.Parameters.AddWithValue("@result", sap.task.payload.text);
+                myCommandNotofications.Parameters.AddWithValue("@phones", phone);
+                myCommandNotofications.Parameters.AddWithValue("@date", DateTime.Now);
+                myCommandNotofications.ExecuteReader();
+                myCon.Close();
+            }
         }
     }
 }
