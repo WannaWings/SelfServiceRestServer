@@ -166,7 +166,9 @@ namespace RestService.Controllers
                     table.Load(myReader);
                     myReader.Close();
                     myCon.Close();
+                    UpdateQueueCompleate(sap.tasks.task_id, sqlDataSource);
                 }
+                
             }
             return new JsonResult("Added succesfully =)");
 
@@ -254,6 +256,24 @@ namespace RestService.Controllers
                 myCommandNotofications.ExecuteReader();
                 myCon.Close();
             }
+            
+        }
+        public static async Task UpdateQueueCompleate(string task_id, string _dbConn)
+        { 
+            string updateQeueueQuery = @"update queue set status ='completed', lastupdate = @lastupdate where taskid = @taskid";
+
+            using (NpgsqlConnection myCon = new NpgsqlConnection(_dbConn))
+            {
+                myCon.Open();
+                using (NpgsqlCommand myCommand = new NpgsqlCommand(updateQeueueQuery, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@taskid", task_id);
+                    myCommand.Parameters.AddWithValue("@lastupdate", DateTime.Now);
+                    myCommand.ExecuteReader();
+                    myCon.Close();
+                }
+            }
+            
         }
     }
 }

@@ -57,8 +57,8 @@ namespace RestService.Controllers
 
                 if (surveyBody.task.task_type == "change_survey_status")
                 { 
-                    string updateQeueueQuery = @"update survey_members set status = @status where survey_id = @survey_id and phone = @phone";
-                    using (NpgsqlCommand myCommand = new NpgsqlCommand(updateQeueueQuery, myCon))
+                    string updateSurveyMembersQuery = @"update survey_members set status = @status where survey_id = @survey_id and phone = @phone";
+                    using (NpgsqlCommand myCommand = new NpgsqlCommand(updateSurveyMembersQuery, myCon))
                     {
                         myCommand.Parameters.AddWithValue("@survey_id", surveyBody.task.payload.survey_key);
                         myCommand.Parameters.AddWithValue("@phone", surveyBody.task.payload.phones[0]);
@@ -76,13 +76,7 @@ namespace RestService.Controllers
                 {
                     if (surveyBody.task.payload.task_internal_id == null)
                         surveyBody.task.payload.task_internal_id = "null";
-                    //_logger.Trace($"Notification came from SAP: {payload}  ");
-                    //queueData = GetQueueData(sap.tasks.task_id);
-                    // string payloads = JsonConvert.SerializeObject(surveyBody.task.payload, 
-                    //     Newtonsoft.Json.Formatting.None, 
-                    //     new JsonSerializerSettings { 
-                    //         NullValueHandling = NullValueHandling.Ignore
-                    //     });
+                    
                     myCommandNotofications.Parameters.AddWithValue("@survey_id", surveyBody.task.payload.survey_id);
                     myCommandNotofications.Parameters.AddWithValue("@task_internal_id", surveyBody.task.payload.task_internal_id);
                     myCommandNotofications.Parameters.AddWithValue("@title", surveyBody.task.payload.title);
@@ -136,10 +130,6 @@ namespace RestService.Controllers
                         myReader.Close();
                     }
                 }
-
-                
-                
-                
                 myCon.Close();
             }
             return new JsonResult("Added succesfully =)");

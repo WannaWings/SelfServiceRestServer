@@ -38,7 +38,7 @@ namespace RestService.BackgroundWorks
             {
                 //delete saved file after 10 minutes
                 deleteRowInDB();
-                
+                await TimeoutFuncsAsync(1);
                 
                 //List<string> jsonLists = new List<string>();
                 List<Queue> queuesList = new List<Queue>();
@@ -108,6 +108,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(GetModel1C, options);
+                                await UpdateQueueCompleateAsync(taskid, sqlDataSource);
                                 body =  await Send1CRequestAsync(jsonString);
                                  myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
                                 await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
@@ -140,6 +141,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 options = new JsonSerializerOptions {WriteIndented = true};
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(GetModelCheck1C, options);
+                                await UpdateQueueCompleateAsync(taskid, sqlDataSource);
                                 body = await Send1CRequestAsync(jsonString);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
                                 await Add1CResultToDB(myDeserializedClass[0], userid, task_type);
@@ -173,6 +175,8 @@ namespace RestService.BackgroundWorks
                             };
                             options = new JsonSerializerOptions {WriteIndented = true};
                             jsonString = System.Text.Json.JsonSerializer.Serialize(getEmployeeData1C, options);
+                            await UpdateQueueCompleateAsync(taskid, sqlDataSource);
+
                             body = await Send1CRequestAsync(jsonString);
                             myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
                             await Add1CResultToDB(myDeserializedClass[0], userid, task_type);
@@ -205,6 +209,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(availableVacations1C, options);
+                                await UpdateQueueCompleateAsync(taskid, sqlDataSource);
                                 body =  await Send1CRequestAsync(jsonString);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
                                 await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
@@ -237,9 +242,14 @@ namespace RestService.BackgroundWorks
                                 };
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(salartSheetFile, options);
+                                await UpdateQueueCompleateAsync(taskid, sqlDataSource);
+                               
                                 body = await Send1CRequestAsync(jsonString);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
+
                                 await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
+                                
+                                
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
                                 
@@ -251,7 +261,8 @@ namespace RestService.BackgroundWorks
                                 taskbodyItems = taskbodyString.Split('|');
                                 string payloadSurvey = taskbodyItems[2].Replace("\"text\":\"\"", "");
                                 List<QuestionsSurveyModel> questionsSurveyModels= JsonConvert.DeserializeObject<List<QuestionsSurveyModel>>(payloadSurvey);
-                                urlPath = "http://sappo2ci.sap.metinvest.com:50000/RESTAdapter/Portal/SurveyResponce";
+                                urlPath = "/Portal/SurveyResponce";
+                                // urlPath = "http://sappo2ci.sap.metinvest.com:50000/RESTAdapter/Portal/SurveyResponce";
                                 var surveyAnswerSend = new SurveyAnswerSendModel
                                 {
                                     configuration = "MIDev",
@@ -281,7 +292,8 @@ namespace RestService.BackgroundWorks
                                     WriteIndented = true
                                 };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(surveyAnswerSend, options);
-                                await SendWebRequestSurveyAsync(urlPath, jsonString);
+                                await SendWebRequestAsync(urlPath, jsonString);
+                                await UpdateQueueCompleateAsync(taskid, sqlDataSource);
                                 break;
                             
                             
@@ -311,7 +323,7 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetModel, options);
-                                
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             }
@@ -341,6 +353,8 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions {WriteIndented = true};
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(verifySMSModel, options);
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
+
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             }
@@ -356,6 +370,7 @@ namespace RestService.BackgroundWorks
                             //serialize json response for sap 
                             options = new JsonSerializerOptions {WriteIndented = true};
                             jsonString = System.Text.Json.JsonSerializer.Serialize(sendSMSCode, options);
+                            await UpdateQueueCompleateAsync(taskid, sqlDataSource);
                             await SendWebRequestAsync(urlPath, jsonString);
                             break;
                         }
@@ -389,6 +404,7 @@ namespace RestService.BackgroundWorks
                             //serialize json response for sap 
                             options = new JsonSerializerOptions {WriteIndented = true};
                             jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetSalarysheetUrl, options);
+                            await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                             await SendWebRequestAsync(urlPath, jsonString);
                             break;
                         }
@@ -419,6 +435,7 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions {WriteIndented = true};
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(SapGetActivityRequest, options);
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
                             }
@@ -450,6 +467,7 @@ namespace RestService.BackgroundWorks
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions {WriteIndented = true};
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(cancelRequestModel, options);
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 await SendWebRequestAsync(urlPath, jsonString);
 
                                 break;
@@ -481,6 +499,8 @@ namespace RestService.BackgroundWorks
                                     //serialize json response for sap 
                                     options = new JsonSerializerOptions { WriteIndented = true };
                                     jsonString = System.Text.Json.JsonSerializer.Serialize(restOfVacationRequestModel, options);
+                                    await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
+
                                     await SendWebRequestAsync(urlPath, jsonString);
                                     
                                     break;
@@ -509,6 +529,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(conditionAndPlaceOfWorkRequest, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
@@ -537,6 +558,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(orderNote_PeriodsListRequest, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 
@@ -569,6 +591,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(orderNote_2NDFLRequest, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
@@ -598,6 +621,7 @@ namespace RestService.BackgroundWorks
                                     };
                                     //serialize json response for sap 
                                     options = new JsonSerializerOptions { WriteIndented = true };
+                                    await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                     jsonString = System.Text.Json.JsonSerializer.Serialize(orderNote_PlaceListRequest, options);
                                     await SendWebRequestAsync(urlPath, jsonString);
                                 break; 
@@ -631,6 +655,7 @@ namespace RestService.BackgroundWorks
                                     };
                                     //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_FromJobRequest, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break; 
@@ -659,6 +684,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_SeniorityRequest, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
@@ -690,6 +716,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_VacationRequest, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
@@ -721,6 +748,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_WorkBookExtractionRequest, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
 
@@ -755,6 +783,7 @@ namespace RestService.BackgroundWorks
                                 };
                                 //serialize json response for sap 
                                 options = new JsonSerializerOptions { WriteIndented = true };
+                                await UpdateQueueStatusToSendedSap(taskid, sqlDataSource);
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(OrderNote_WorkBookCopyRequest, options);
                                 await SendWebRequestAsync(urlPath, jsonString);
                                 break;
@@ -767,20 +796,8 @@ namespace RestService.BackgroundWorks
                         
                         
                         //change queue status
-                        string updateQeueueQuery = @"update queue set status ='sendedSap' where taskid = @taskid";
-                        using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
-                        {
-                            myCon.Open();
-                            using (NpgsqlCommand myCommand = new NpgsqlCommand(updateQeueueQuery, myCon))
-                            {
-                                myCommand.Parameters.AddWithValue("@taskid", taskid);
-                                myReader = myCommand.ExecuteReader();
-                                table.Load(myReader);
-
-                                myReader.Close();
-                                myCon.Close();
-                            }
-                        }
+                        
+                        
                     }
                     
                 }
@@ -789,8 +806,128 @@ namespace RestService.BackgroundWorks
                 await Task.Delay(500); // timer each 1 sec 
             }
         }
-        
-        
+
+        public async Task UpdateQueueStatusToSendedSap(string taskid, string sqlDataSource)
+        {
+            string updateQeueueQuery = @"update queue set status ='sendedSap', lastupdate = @lastupdate where taskid = @taskid";
+            using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (NpgsqlCommand myCommand = new NpgsqlCommand(updateQeueueQuery, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@taskid", taskid);
+                    myCommand.Parameters.AddWithValue("@lastupdate", DateTime.Now);
+                    myCommand.ExecuteReader();
+                    myCon.Close();
+                }
+            }
+        }
+
+        public async Task TimeoutFuncsAsync(int minutesDelay)
+        {
+            string query = @"select  * from queue where status='sendedSap' and lastupdate < @dateofcreating  ";
+            var date = DateTime.Now.AddMinutes(minutesDelay*(-1));
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configuration.GetConnectionString("DBConnect");
+            NpgsqlDataReader myReader;
+            using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (NpgsqlCommand myCommand = new NpgsqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@dateofcreating", date);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+
+            if (table.Rows.Count != 0)
+            {
+                for (int i = 0; i < table.Rows.Count; i++)
+                {
+                    DateTime creatingDate = Convert.ToDateTime(table.Rows[i]["dateofcreating"]);
+                    
+                    string taskid = table.Rows[i]["taskid"].ToString();
+                    string userid = table.Rows[i]["userid"].ToString();
+                    string task_type = table.Rows[i]["task_type"].ToString();
+                    await AddTimeoutResultsAsync(taskid, userid, task_type, sqlDataSource);
+                
+                    
+                    
+                }
+            }
+        }
+
+        public async Task AddTimeoutResultsAsync(string taskid, string userid, string task_type, string dbConn)
+        {
+            string query =
+                @"insert into sap_results(userid, taskid, completed,job_status, task_type, taskresult, dateofcreating, datasource, lastupdate) 
+                                  VALUES (@userid, @taskid, @completed,@job_status, @task_type, @taskresult, @dateofcreating, @datasource, @lastupdate)";
+            using (NpgsqlConnection myCon = new NpgsqlConnection(dbConn))
+            {
+                myCon.Open();
+                string[] queueData;
+                using (NpgsqlCommand myCommand = new NpgsqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@userid", userid);
+                    myCommand.Parameters.AddWithValue("@taskid", taskid);
+                    myCommand.Parameters.AddWithValue("@completed", false);
+                    myCommand.Parameters.AddWithValue("@task_type", task_type);
+                    myCommand.Parameters.AddWithValue("@datasource", "SAP");
+                    myCommand.Parameters.AddWithValue("@job_status", "fromSap");
+                    myCommand.Parameters.AddWithValue("@taskresult", "TIMEOUTERROR|Сервис временно не работает");
+                    myCommand.Parameters.AddWithValue("@dateofcreating", DateTime.Now);
+                    myCommand.Parameters.AddWithValue("@lastupdate", DateTime.Now);
+                    myCommand.ExecuteReader();
+                    myCon.Close();
+                    await UpdateQueueCompleateAsync(taskid, dbConn);
+                }
+
+                myCon.Open();
+
+
+            }
+        }
+        public static async Task UpdateQueueCompleateAsync(string task_id, string _dbConn)
+        { 
+            string updateQeueueQuery = @"update queue set status ='completed', lastupdate = @lastupdate where taskid = @taskid";
+
+            using (NpgsqlConnection myCon = new NpgsqlConnection(_dbConn))
+            {
+                myCon.Open();
+                using (NpgsqlCommand myCommand = new NpgsqlCommand(updateQeueueQuery, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@taskid", task_id);
+                    myCommand.Parameters.AddWithValue("@lastupdate", DateTime.Now);
+                    myCommand.ExecuteReader();
+                    myCon.Close();
+                }
+            }
+            
+        }
+        public bool UpdateQueueToCompleate(string task_id, string _dbConn)
+        { 
+            string updateQeueueQuery = @"update queue set status ='completed', lastupdate = @lastupdate where taskid = @taskid";
+
+            using (NpgsqlConnection myCon = new NpgsqlConnection(_dbConn))
+            {
+                myCon.Open();
+                using (NpgsqlCommand myCommand = new NpgsqlCommand(updateQeueueQuery, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@taskid", task_id);
+                    myCommand.Parameters.AddWithValue("@lastupdate", DateTime.Now);
+                    myCommand.ExecuteReader();
+                    myCon.Close();
+                }
+            }
+
+            return true;
+        }
+
         public bool deleteRowInDB()
         {
             var date = DateTime.Now.AddMinutes(-10);
@@ -933,9 +1070,10 @@ namespace RestService.BackgroundWorks
             string payload = "";
             string query = @"insert into sap_results(userid, taskid, completed,job_status, task_type, taskresult, dateofcreating, datasource, lastupdate) 
                                   VALUES (@userid, @taskid, @completed,@job_status, @task_type, @taskresult, @dateofcreating, @datasource, @lastupdate)";
-
+            
             DataTable table = new DataTable();
             string sqlDataSource = _configuration.GetConnectionString("DBConnect");
+
             NpgsqlDataReader myReader;
             using (NpgsqlConnection myCon = new NpgsqlConnection(sqlDataSource))
             {
@@ -992,7 +1130,10 @@ namespace RestService.BackgroundWorks
                     myReader.Close();
                     myCon.Close();
                 }
+                
             }
+
+            
 
             return true;
         }
@@ -1019,4 +1160,5 @@ namespace RestService.BackgroundWorks
 
         }
     }
+      
 }
