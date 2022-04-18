@@ -43,7 +43,7 @@ namespace RestService.BackgroundWorks
                 //List<string> jsonLists = new List<string>();
                 List<Queue> queuesList = new List<Queue>();
                 //check queue in DB where status = true
-                string query = @"select  * from queue where status='fromAzure'";
+                string query = @"select  * from queue inner join userprofiles u on queue.userid = u.userid where status='fromAzure'";
 
                 DataTable table = new DataTable();
                 string sqlDataSource = _configuration.GetConnectionString("DBConnect");
@@ -68,6 +68,7 @@ namespace RestService.BackgroundWorks
                         string task_type = table.Rows[i]["task_type"].ToString();
                         string userid = table.Rows[i]["userid"].ToString();
                         string taskbodyString = table.Rows[i]["taskbody"].ToString();
+                        string department = "0";
                         string[] taskbodyItems = taskbodyString.Split(',');
                         var options=new JsonSerializerOptions { WriteIndented = true };
                         string phoneNumber = taskbodyItems[0];
@@ -83,6 +84,8 @@ namespace RestService.BackgroundWorks
                         //https://sappo1ci.sap.metinvest.com:50001/RestAdapter/Portal/SurveyResponce
                         //1C requests 
                             case "salarySheet":
+                                department = table.Rows[i]["department_code"].ToString();
+
                                 var GetModel1C = new SapGetModel1C()
                                 {
                                     configuration = "<config_name>",
@@ -109,13 +112,14 @@ namespace RestService.BackgroundWorks
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(GetModel1C, options);
                                 await UpdateQueueCompleateAsync(taskid, sqlDataSource);
-                                body =  await Send1CRequestAsync(jsonString);
+                                body =  await Send1CRequestAsync(jsonString, department);
                                  myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
                                 await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
                             case "check_employee_phone_1c":
                             {
+                                department = table.Rows[i]["department_code"].ToString();
                                 var GetModelCheck1C = new SapGetModel1C()
                                 {
                                     configuration = "<config_name>",
@@ -142,7 +146,43 @@ namespace RestService.BackgroundWorks
                                 options = new JsonSerializerOptions {WriteIndented = true};
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(GetModelCheck1C, options);
                                 await UpdateQueueCompleateAsync(taskid, sqlDataSource);
-                                body = await Send1CRequestAsync(jsonString);
+                                body = await Send1CRequestAsync(jsonString, department);
+                                myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
+                                await Add1CResultToDB(myDeserializedClass[0], userid, task_type);
+                                //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
+                                break;
+                            };
+                                
+                                case "check_employee_login_1c":
+                            {
+                                var GetModelCheck1C = new SapGetModel1C()
+                                {
+                                    configuration = "<config_name>",
+                                    queue = "<queue_name>",
+
+                                    tasks = new List<GetTasks1C>
+                                    {
+
+                                        new GetTasks1C()
+                                        {
+                                            task_id = taskid,
+                                            state = "new",
+                                            task_type = "check_employee",
+                                            payload = new Payloads1C
+                                            {
+                                                snils = "",
+                                                phone = "",
+                                                email = taskbodyItems[1],
+                                                date = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                                            }
+                                        }
+                                    }
+                                };
+                                department = taskbodyItems[2];
+                                options = new JsonSerializerOptions {WriteIndented = true};
+                                jsonString = System.Text.Json.JsonSerializer.Serialize(GetModelCheck1C, options);
+                                await UpdateQueueCompleateAsync(taskid, sqlDataSource);
+                                body = await Send1CRequestAsync(jsonString, department);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
                                 await Add1CResultToDB(myDeserializedClass[0], userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
@@ -150,6 +190,7 @@ namespace RestService.BackgroundWorks
                             };
                             case "get_employee_data1С":
                         {
+                            department = table.Rows[i]["department_code"].ToString();
                             var getEmployeeData1C = new SapGetModel1C()
                             {
                                 configuration = "<config_name>",
@@ -177,13 +218,14 @@ namespace RestService.BackgroundWorks
                             jsonString = System.Text.Json.JsonSerializer.Serialize(getEmployeeData1C, options);
                             await UpdateQueueCompleateAsync(taskid, sqlDataSource);
 
-                            body = await Send1CRequestAsync(jsonString);
+                            body = await Send1CRequestAsync(jsonString, department);
                             myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
                             await Add1CResultToDB(myDeserializedClass[0], userid, task_type);
                             //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                             break;
                         }
                             case "available_vacations1C":
+                                department = table.Rows[i]["department_code"].ToString();
                                 var availableVacations1C = new SapGetModel1C()
                                 {
                                     configuration = "<config_name>",
@@ -210,12 +252,13 @@ namespace RestService.BackgroundWorks
                                 options = new JsonSerializerOptions { WriteIndented = true };
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(availableVacations1C, options);
                                 await UpdateQueueCompleateAsync(taskid, sqlDataSource);
-                                body =  await Send1CRequestAsync(jsonString);
+                                body =  await Send1CRequestAsync(jsonString , department);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
                                 await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
                                 //SalarySheet1c nas  = JsonConvert.DeserializeObject<SalarySheet1c>(body);
                                 break;
                             case "salarySeetFile":
+                                department = table.Rows[i]["department_code"].ToString();
                                 var salartSheetFile = new SalartSheetFile()
                                 {
                                     configuration = "<config_name>",
@@ -244,7 +287,7 @@ namespace RestService.BackgroundWorks
                                 jsonString = System.Text.Json.JsonSerializer.Serialize(salartSheetFile, options);
                                 await UpdateQueueCompleateAsync(taskid, sqlDataSource);
                                
-                                body = await Send1CRequestAsync(jsonString);
+                                body = await Send1CRequestAsync(jsonString , department);
                                 myDeserializedClass = JsonConvert.DeserializeObject<List<ResultFrom1c>>(body);
 
                                 await Add1CResultToDB(myDeserializedClass[0],userid, task_type);
@@ -850,14 +893,11 @@ namespace RestService.BackgroundWorks
                 for (int i = 0; i < table.Rows.Count; i++)
                 {
                     DateTime creatingDate = Convert.ToDateTime(table.Rows[i]["dateofcreating"]);
-                    
+                   
                     string taskid = table.Rows[i]["taskid"].ToString();
                     string userid = table.Rows[i]["userid"].ToString();
                     string task_type = table.Rows[i]["task_type"].ToString();
                     await AddTimeoutResultsAsync(taskid, userid, task_type, sqlDataSource);
-                
-                    
-                    
                 }
             }
         }
@@ -978,7 +1018,7 @@ namespace RestService.BackgroundWorks
                         RequestUri = new Uri(url + urlPath),
                         Content = new StringContent(jsonString, Encoding.UTF8, "application/json"),
                     };
-                    
+                    //90150
                     var response = await client.SendAsync(request).ConfigureAwait(false);
                     response.EnsureSuccessStatusCode();
                     
@@ -993,7 +1033,7 @@ namespace RestService.BackgroundWorks
             }
         }
         
-        private async Task SendWebRequestSurveyAsync(string urlPath, string jsonString)
+        private async Task SendWebRequestSurveyAsync(string urlPath, string jsonString )
         {
             try
             {
@@ -1027,12 +1067,18 @@ namespace RestService.BackgroundWorks
             }
         }
         
-        private async Task<string> Send1CRequestAsync(string jsonString)
+        private async Task<string> Send1CRequestAsync(string jsonString, string department)
         {
             try
             {
                 string loginPass = _configuration.GetConnectionString("1CLoginPass");
                 string url =  _configuration.GetConnectionString("1CURL");
+                if (department == "90150")
+                {
+                     loginPass = _configuration.GetConnectionString("1CMKSLoginPass");
+                     url =  _configuration.GetConnectionString("1CMKSURL");
+                }
+                
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Authorization =
